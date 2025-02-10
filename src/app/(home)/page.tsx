@@ -32,7 +32,7 @@ export default function Home() {
         {/* Buttons in One Column */}
         <div className="flex flex-col space-y-3">
           <Link 
-            href="/program"
+            href="/repertoire"
             className="bg-white/20 backdrop-blur-lg px-4 py-2.5 rounded-xl shadow-lg hover:bg-white/30 transition-all text-base text-center font-medium"
           >
             Repertoire & Program Notes
@@ -46,7 +46,7 @@ export default function Home() {
           </Link>
 
           <Link 
-            href="/program-notes"
+            href="/meet-orchestra"
             className="bg-white/20 backdrop-blur-lg px-4 py-2.5 rounded-xl shadow-lg hover:bg-white/30 transition-all text-base text-center font-medium"
           >
             Meet the Orchestra
