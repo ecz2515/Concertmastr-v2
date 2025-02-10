@@ -14,7 +14,7 @@ export default function Biography({ params }: { params: { id: string } }) {
     : "/assets/images/default_musician.jpg";
 
   return (
-    <div className="min-h-screen bg-black text-white px-6 py-8">
+    <div className="min-h-screen bg-black text-white pt-16 lg:pt-20 px-6 pb-8">
       <div className="max-w-3xl mx-auto">
         <Image
           src={imageSrc}

@@ -7,7 +7,7 @@ export default function ProgramNote({ params }: { params: { id: string } }) {
   if (!piece) return notFound(); // Handle invalid piece ID
 
   return (
-    <div className="min-h-screen bg-black text-white px-6 py-8">
+    <div className="min-h-screen bg-black text-white pt-16 lg:pt-20 px-6 pb-8">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold">{piece.pieceName}</h1>
         <h2 className="text-lg text-gray-300">{piece.composer}</h2>

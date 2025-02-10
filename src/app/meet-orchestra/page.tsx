@@ -6,7 +6,7 @@ import musiciansData from "@/data/musicians.json";
 
 export default function MeetOrchestra() {
   return (
-    <div className="min-h-screen bg-black text-white px-6 py-8">
+    <div className="min-h-screen bg-black text-white pt-16 lg:pt-20 px-6 pb-8">
       <h1 className="text-3xl font-extrabold text-center mb-6">Meet the Orchestra</h1>
 
       <div className="max-w-5xl mx-auto space-y-8">
