@@ -8,29 +8,26 @@
     "lastUpdated": "2023-10-01",
     "artists": [
         {
-            "name": "Riccardo Muti",
-            "role": "Conductor",
-            "bio": "Riccardo Muti, born in Naples, Italy, is one of the most celebrated and respected conductors of our time. With a career spanning over five decades, Muti has led many of the world's most prestigious orchestras, including the Berlin Philharmonic, the Vienna Philharmonic, and the New York Philharmonic. He has been the music director of the Chicago Symphony Orchestra since 2010, where he has been praised for his dynamic leadership and innovative programming. Muti is renowned for his interpretations of the works of Verdi, Beethoven, and Mozart, and his commitment to preserving the classical music tradition while also championing contemporary composers. His numerous accolades include the Grammy Award, the Birgit Nilsson Prize, and the Prince of Asturias Award for the Arts. Muti is also known for his dedication to music education and outreach, having founded the Luigi Cherubini Youth Orchestra and frequently conducting free concerts for the public.",
+            "name": "Klaus Mäkelä",
+            "role": "Zell Music Director",
+            "bio": "Klaus Mäkelä, born in Helsinki, Finland, is a rapidly rising star in the world of classical music, known for his exceptional talent and charismatic presence on the podium. A prodigious conductor and cellist, Mäkelä began his musical journey at a young age, studying at the prestigious Sibelius Academy in Helsinki. His early career was marked by a series of impressive debuts with major orchestras, quickly establishing him as one of the most sought-after conductors of his generation. Mäkelä's interpretations are celebrated for their depth, clarity, and emotional intensity, drawing audiences into the heart of the music. He has a particular affinity for the works of Sibelius, Mahler, and Shostakovich, bringing a fresh perspective to these composers' masterpieces. In addition to his work with traditional repertoire, Mäkelä is a passionate advocate for contemporary music, often collaborating with living composers to bring new works to life. His dynamic leadership and innovative programming have earned him critical acclaim and numerous accolades, including the prestigious Finnish State Prize for Music. As the Chief Conductor of the Oslo Philharmonic and the Music Director of the Orchestre de Paris, Mäkelä continues to captivate audiences worldwide with his visionary artistry and commitment to excellence.",
             "image": "assets/images/musician1.jpg",
             "imageAlt": "Description of artist image"
         },
         {
             "name": "Yuja Wang",
-            "role": "Pianist",
             "bio": "Yuja Wang, born in Beijing, China, is a world-renowned classical pianist known for her extraordinary technical skill and captivating stage presence. A child prodigy, Wang began her piano studies at the age of six and quickly rose to international prominence. She studied at the Central Conservatory of Music in Beijing, the Mount Royal Conservatory in Calgary, and the Curtis Institute of Music in Philadelphia. Wang's performances are characterized by their energy, precision, and emotional depth, and she is equally at home with the works of Chopin, Rachmaninoff, and Prokofiev. Her bold fashion choices and charismatic personality have made her a favorite among audiences worldwide. Wang has performed with leading orchestras such as the Berlin Philharmonic, the London Symphony Orchestra, and the New York Philharmonic, and she has collaborated with esteemed conductors including Gustavo Dudamel, Michael Tilson Thomas, and Valery Gergiev. Her discography includes critically acclaimed recordings for Deutsche Grammophon, and she has received numerous awards, including the Echo Klassik Award and the Gramophone Award.",
             "image": "assets/images/musician2.jpg",
             "imageAlt": "Description of artist image"
         },
         {
             "name": "Chicago Symphony Orchestra",
-            
             "bio": "The Chicago Symphony Orchestra (CSO) is one of the most prestigious and storied orchestras in the world. Founded in 1891, the CSO has a rich history of excellence and innovation in classical music. The orchestra has been led by a succession of legendary music directors, including Frederick Stock, Fritz Reiner, Sir Georg Solti, and Daniel Barenboim. Under their leadership, the CSO has developed a distinctive sound characterized by its power, precision, and warmth. The orchestra is renowned for its interpretations of the works of Mahler, Bruckner, and Shostakovich, and it has premiered numerous contemporary compositions. The CSO performs at Symphony Center in Chicago and tours extensively, bringing its music to audiences around the globe. The orchestra's recordings have earned 63 Grammy Awards, more than any other orchestra in the world. In addition to its performances, the CSO is committed to music education and community engagement, offering a wide range of programs for young musicians and music lovers of all ages.",
             "image": "assets/images/musician3.jpg",
             "imageAlt": "Description of orchestra image"
         },
         {
             "name": "Jessie Montgomery",
-            "role": "Composer",
             "bio": "Jessie Montgomery is an acclaimed American composer and violinist whose work is celebrated for its innovation, vibrancy, and emotional depth. Born and raised in New York City, Montgomery began her musical journey at a young age, studying violin at the prestigious Juilliard School. Her compositions draw on a wide range of influences, from classical and jazz to folk and spirituals, reflecting her diverse cultural heritage and experiences. Montgomery's music is known for its rhythmic vitality, lyrical melodies, and rich harmonies, and it often explores themes of social justice, identity, and community. Her works have been performed by leading ensembles such as the New York Philharmonic, the Chicago Symphony Orchestra, and the Sphinx Virtuosi, and she has received numerous commissions from prestigious organizations. Montgomery is also a dedicated educator and advocate for diversity in classical music, serving as a faculty member at the Mannes School of Music and as a composer-in-residence with the Sphinx Organization.",
             "image": "assets/images/musician4.jpg",
             "imageAlt": "Description of artist image"
