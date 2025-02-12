@@ -14,18 +14,20 @@ export default function Biography({ params }: { params: { id: string } }) {
     : "/assets/images/default_musician.jpg";
 
   return (
-    <div className="min-h-screen bg-black text-white pt-16 lg:pt-20 px-6 pb-8">
+    <div className="min-h-screen bg-black text-white pt-20 lg:pt-20 px-6 pb-8">
       <div className="max-w-3xl mx-auto">
         <Image
           src={imageSrc}
           width={400}
           height={400}
           alt={artist.imageAlt || artist.name}
-          className="w-full h-80 object-cover rounded-lg"
+          className="w-60 h-60 object-cover rounded-lg mx-auto"
         />
-        <h1 className="text-3xl font-bold mt-4">{artist.name}</h1>
-        <h2 className="text-lg text-gray-300">{artist.role || "Musician"}</h2>
-        <p className="mt-4 text-gray-200">{artist.bio}</p>
+        <h1 className="text-3xl font-bold mt-4 text-center">{artist.name}</h1>
+        {artist.role && (
+          <h2 className="text-lg text-gray-300 text-center">{artist.role}</h2>
+        )}
+        <p className="mt-8 text-gray-200">{artist.bio}</p>
       </div>
     </div>
   );

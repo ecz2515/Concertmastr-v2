@@ -6,7 +6,7 @@ import musiciansData from "@/data/musicians.json";
 
 export default function MeetOrchestra() {
   return (
-    <div className="min-h-screen bg-black text-white pt-16 lg:pt-20 px-6 pb-8">
+    <div className="min-h-screen bg-black text-white pt-20 lg:pt-20 px-6 pb-8">
       <h1 className="text-3xl font-extrabold text-center mb-6">Meet the Orchestra</h1>
 
       <div className="max-w-5xl mx-auto space-y-8">
@@ -22,20 +22,29 @@ export default function MeetOrchestra() {
                 );
 
                 return (
-                  <div key={index} className="bg-white/10 p-4 rounded-lg text-center">
+                  <div
+                    key={index}
+                    className="group relative bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-all 
+                               hover:bg-gray-700 hover:scale-[1.03] hover:shadow-xl duration-300"
+                  >
                     <Image
                       src={imageSrc}
                       width={200}
                       height={200}
                       alt={musician.name}
-                      className="w-full h-40 object-cover rounded-md"
+                      className="object-cover w-full h-40"
                       priority
                       onError={() => setImageSrc("/assets/images/default_musician.jpg")}
                     />
-                    <h3 className="text-lg font-semibold mt-2">{musician.name}</h3>
-                    {musician.position && (
-                      <p className="text-yellow-300 text-sm">{musician.position}</p>
-                    )}
+                    <div className="p-4">
+                      <h3 className="text-lg font-semibold text-white group-hover:text-indigo-400 transition-colors">
+                        {musician.name}
+                      </h3>
+                      {musician.position && (
+                        <p className="text-gray-400 text-sm">{musician.position}</p>
+                      )}
+                    </div>
+                    <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-indigo-500 transition-colors"></div>
                   </div>
                 );
               })}

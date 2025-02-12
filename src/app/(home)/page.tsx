@@ -5,6 +5,16 @@ import concertData from "@/data/concert.json";
 export default function Home() {
   return (
     <div className="fixed inset-0 flex flex-col bg-black text-white overflow-hidden">
+      {/* Logo at the top-left corner with a black background */}
+      <div className="absolute top-4 left-4 p-2 bg-black hover:bg-black text-white rounded-full transition-all shadow-md z-30">
+        <Image 
+          src="/assets/images/CM_logo.png"
+          width={32}
+          height={32}
+          alt="CM Logo"
+        />
+      </div>
+
       {/* Background Image with Shadow Overlay */}
       <div className="absolute inset-0 h-2/3">
         <Image 
@@ -15,7 +25,7 @@ export default function Home() {
           alt="Concert Image"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black" style={{ background: 'linear-gradient(to bottom, transparent 30%, black 100%)' }} />
       </div>
 
       {/* Push Main Content to Bottom */}
@@ -33,30 +43,50 @@ export default function Home() {
         <div className="flex flex-col space-y-3">
           <Link 
             href="/repertoire"
-            className="bg-white/20 backdrop-blur-lg px-4 py-2.5 rounded-xl shadow-lg hover:bg-white/30 transition-all text-base text-center font-medium"
+            className="group relative block bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-all 
+                      hover:bg-gray-700 hover:scale-[1.03] hover:shadow-xl duration-300 text-center"
           >
-            Repertoire & Program Notes
+            <div className="p-3">
+              <span className="text-base font-medium text-white group-hover:text-indigo-400 transition-colors">
+                Repertoire
+              </span>
+            </div>
           </Link>
 
           <Link 
             href="/biographies"
-            className="bg-white/20 backdrop-blur-lg px-4 py-2.5 rounded-xl shadow-lg hover:bg-white/30 transition-all text-base text-center font-medium"
+            className="group relative block bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-all 
+                      hover:bg-gray-700 hover:scale-[1.03] hover:shadow-xl duration-300 text-center"
           >
-            Biographies
+            <div className="p-3">
+              <span className="text-base font-medium text-white group-hover:text-indigo-400 transition-colors">
+                Biographies
+              </span>
+            </div>
           </Link>
 
           <Link 
             href="/meet-orchestra"
-            className="bg-white/20 backdrop-blur-lg px-4 py-2.5 rounded-xl shadow-lg hover:bg-white/30 transition-all text-base text-center font-medium"
+            className="group relative block bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-all 
+                      hover:bg-gray-700 hover:scale-[1.03] hover:shadow-xl duration-300 text-center"
           >
-            Meet the Orchestra
+            <div className="p-3">
+              <span className="text-base font-medium text-white group-hover:text-indigo-400 transition-colors">
+                Meet the Orchestra
+              </span>
+            </div>
           </Link>
 
           <Link
             href="/acknowledgements"
-            className="bg-white/20 backdrop-blur-lg px-4 py-2.5 rounded-xl shadow-lg hover:bg-white/30 transition-all text-base text-center font-medium"
+            className="group relative block bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-all 
+                      hover:bg-gray-700 hover:scale-[1.03] hover:shadow-xl duration-300 text-center"
           >
-            Acknowledgements
+            <div className="p-3">
+              <span className="text-base font-medium text-white group-hover:text-indigo-400 transition-colors">
+                Acknowledgements
+              </span>
+            </div>
           </Link>
         </div>
       </div>
