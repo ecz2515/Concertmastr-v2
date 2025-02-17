@@ -39,12 +39,25 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
   const [trueTone, setTrueTone] = useState<boolean>(false);
   const [blueLight, setBlueLight] = useState<boolean>(false);
 
+  // Function to set font size with constraints
+  const handleSetFontSize = (val: number) => {
+    const minFontSize = 16;
+    const maxFontSize = 24;
+    if (val < minFontSize) {
+      setFontSize(minFontSize);
+    } else if (val > maxFontSize) {
+      setFontSize(maxFontSize);
+    } else {
+      setFontSize(val);
+    }
+  };
+
   // Memoize your value if you want to optimize re-renders, but simple object is often fine
   const value: AppStateContextValue = {
     enhancedContrast,
     setEnhancedContrast,
     fontSize,
-    setFontSize,
+    setFontSize: handleSetFontSize,
     trueTone,
     setTrueTone,
     blueLight,

@@ -18,9 +18,13 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
     setBlueLight,
   } = useAppContext();
 
+  // Define min and max font size
+  const minFontSize = 16;
+  const maxFontSize = 24;
+
   // Increase or decrease font size within a min/max range
-  const increaseFontSize = () => setFontSize(Math.min(fontSize + 2, 40));
-  const decreaseFontSize = () => setFontSize(Math.max(fontSize - 2, 10));
+  const increaseFontSize = () => setFontSize(Math.min(fontSize + 2, maxFontSize));
+  const decreaseFontSize = () => setFontSize(Math.max(fontSize - 2, minFontSize));
 
   // Function to reset all settings to default values
   const resetAllSettings = () => {
@@ -200,44 +204,40 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
             <button
               type="button"
               onClick={decreaseFontSize}
-              className="
+              disabled={fontSize <= minFontSize}
+              className={`
                 w-14
                 h-12
-                bg-gray-700
-                text-white
                 rounded
                 text-2xl
                 flex
                 items-center
                 justify-center
                 transition-colors
-                hover:bg-gray-700
-                active:bg-gray-500
                 focus:outline-none
                 focus:ring-0
-              "
+                ${fontSize <= minFontSize ? 'bg-gray-500 cursor-not-allowed' : 'bg-gray-700 text-white hover:bg-gray-700 active:bg-gray-500'}
+              `}
             >
               –
             </button>
             <button
               type="button"
               onClick={increaseFontSize}
-              className="
+              disabled={fontSize >= maxFontSize}
+              className={`
                 w-14
                 h-12
-                bg-gray-700
-                text-white
                 rounded
                 text-2xl
                 flex
                 items-center
                 justify-center
                 transition-colors
-                hover:bg-gray-700
-                active:bg-gray-500
                 focus:outline-none
                 focus:ring-0
-              "
+                ${fontSize >= maxFontSize ? 'bg-gray-500 cursor-not-allowed' : 'bg-gray-700 text-white hover:bg-gray-700 active:bg-gray-500'}
+              `}
             >
               +
             </button>
