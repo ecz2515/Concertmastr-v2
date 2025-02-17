@@ -15,6 +15,7 @@ import SettingsModal from "@/components/SettingsModal"; // your Next.js version 
 import { FiSettings } from "react-icons/fi"; // Icon from react-icons (npm install react-icons)
 import React, { useState } from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,14 +35,13 @@ const geistMono = Geist_Mono({
 
 export default function RootLayout({
   children,
-  currentPath,
 }: {
   children: React.ReactNode;
-  currentPath: string;
 }) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const isHomePage = currentPath === "/"; // Use the currentPath prop
+  const pathname = usePathname();
+  const isHomePage = pathname === "/"; // Determine if we're on the homepage using the pathname
 
   return (
     <html lang="en">
@@ -49,8 +49,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AppStateProvider>
-          {/* Conditionally render the logo or back button */}
-          <div style={{ position: 'fixed', top: '0.5rem', left: '1rem', zIndex: 1000 }}>
+          {/* Conditionally render the logo or back button with the original styling */}
+          <div className="fixed top-4 left-4 p-2 bg-black rounded-full transition-all shadow-md z-30">
             {isHomePage ? (
               <Image 
                 src="/assets/images/CM_logo.png"

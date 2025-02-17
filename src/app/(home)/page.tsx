@@ -10,14 +10,14 @@ export default function Home() {
   return (
     <div className="fixed inset-0 flex flex-col bg-black text-white overflow-hidden">
       {/* Logo at the top-left corner */}
-      <div className="absolute top-4 left-4 p-2 bg-black hover:bg-black text-white rounded-full transition-all shadow-md z-30">
+      {/* <div className="absolute top-4 left-4 p-2 bg-black hover:bg-black text-white rounded-full transition-all shadow-md z-30">
         <Image 
           src="/assets/images/CM_logo.png"
           width={32}
           height={32}
           alt="CM Logo"
         />
-      </div>
+      </div> */}
 
       {/* Background Image with Shadow Overlay */}
       <div className="absolute inset-0 h-2/3">
