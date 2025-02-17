@@ -23,9 +23,8 @@ export default function Home() {
       <div className="absolute inset-0 h-2/3">
         <Image 
           src="/assets/images/default_event-image.jpg"
-          layout="fill"
-          objectFit="cover"
-          className="object-center"
+          fill
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
           alt="Concert Image"
           priority
         />
@@ -35,10 +34,10 @@ export default function Home() {
       {/* Push Main Content to Bottom */}
       <div className="flex flex-col justify-end flex-grow relative z-20 w-full max-w-2xl mx-auto px-6 pb-4">
         <div className="text-center mb-4">
-          <h1 className={`font-extrabold tracking-wide ${enhancedContrast ? 'underline' : ''}`} style={{ fontSize: fontSize * 1.8 }}>
+          <h1 className={`font-extrabold tracking-wide ${enhancedContrast ? 'underline' : ''}`} style={{ fontSize: fontSize * 1.8, lineHeight: fontSize > 16 ? 1.4 : 1.2 }}>
             {concertData.concertName}
           </h1>
-          <p className="text-gray-300 text-base mt-2" style={{ fontSize }}>
+          <p className="text-gray-300 text-base mt-2" style={{ fontSize, lineHeight: fontSize > 16 ? 1.4 : 1.2 }}>
             {concertData.date} | {concertData.venue} | {concertData.time}
           </p>
         </div>
@@ -59,7 +58,7 @@ export default function Home() {
               } hover:bg-gray-700 hover:scale-[1.03] hover:shadow-xl duration-300`}
             >
               <div className="p-3">
-                <span className={`text-base font-medium text-white ${enhancedContrast ? "text-indigo-400 font-bold" : ""}`} style={{ fontSize }}>
+                <span className={`text-lg font-medium text-white ${enhancedContrast ? "text-indigo-400 font-bold" : ""}`} style={{ fontSize: fontSize * 1.1 }}>
                   {label}
                 </span>
               </div>

@@ -29,24 +29,24 @@ export default function Repertoire() {
           >
             <div className="p-6">
               <h2 className="text-xl font-semibold text-white group-hover:text-indigo-400 transition-colors"
-                  style={{ fontSize: fontSize * 1.4 }}>
+                  style={{ fontSize: fontSize * 1.4, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
                 {piece.pieceName} <span className="text-gray-500" style={{ fontSize }}>{`(${piece.duration})`}</span>
               </h2>
-              <p className="text-gray-300 mt-1 text-lg" style={{ fontSize }}>
+              <p className="text-gray-300 mt-1 text-lg" style={{ fontSize, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
                 {piece.composer} 
                 {piece.born && piece.death ? (
                   <span className="text-gray-500">{` (${piece.born}-${piece.death})`}</span>
                 ) : ""}
               </p>
               {piece.movements && (
-                <ul className="text-gray-400 text-base mt-1 list-decimal list-inside" style={{ fontSize }}>
+                <ul className="text-gray-400 text-base mt-1 list-decimal list-inside" style={{ fontSize, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
                   {piece.movements.map((movement, i) => (
                     <li key={i}>{movement}</li>
                   ))}
                 </ul>
               )}
               {piece.soloists && (
-                <p className="text-gray-300 text-base mt-1 font-bold" style={{ fontSize }}>
+                <p className="text-gray-300 text-base mt-1 font-bold" style={{ fontSize, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
                   {piece.soloists.map(([name, instrument]) => `${name}, ${instrument}`).join(', ')}
                 </p>
               )}
