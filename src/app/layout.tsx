@@ -11,9 +11,10 @@ import { AppStateProvider } from "@/lib/AppStateProvider";
 
 import BackButton from "@/components/BackButton"; 
 import SettingsModal from "@/components/SettingsModal"; // your Next.js version of the modal
+import SilencePhonesModal from "@/components/SilencePhonesModal"; // Import SilencePhonesModal
 
 import { FiSettings } from "react-icons/fi"; // Icon from react-icons (npm install react-icons)
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 
@@ -39,9 +40,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSilencePhonesModalVisible, setIsSilencePhonesModalVisible] = useState(true); // State for SilencePhonesModal
 
   const pathname = usePathname();
   const isHomePage = pathname === "/"; // Determine if we're on the homepage using the pathname
+
+  useEffect(() => {
+    // Show SilencePhonesModal when the app is entered
+    setIsSilencePhonesModalVisible(true);
+  }, []);
 
   return (
     <html lang="en">
@@ -79,6 +86,12 @@ export default function RootLayout({
           </div>
           {/* Main page content */}
           {children}
+
+          {/* SilencePhonesModal (visible upon entering the app) */}
+          <SilencePhonesModal
+            visible={isSilencePhonesModalVisible}
+            onClose={() => setIsSilencePhonesModalVisible(false)}
+          />
 
           {/* Settings Modal (only visible if isSettingsOpen is true) */}
           <SettingsModal
