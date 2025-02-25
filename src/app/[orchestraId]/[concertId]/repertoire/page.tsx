@@ -2,11 +2,42 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import concertData from "@/data/concert.json";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 import { useAppContext } from "@/lib/AppStateProvider"; // Import accessibility settings
 
 export default function Repertoire() {
+  const { orchestraId, concertId } = useParams();
   const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext();
+  const [program, setProgram] = useState<any[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log("Fetching repertoire for:", orchestraId, concertId);
+
+    const fetchProgram = async () => {
+      const { data, error } = await supabase
+        .from("programs")
+        .select("*")
+        .eq("concert_id", concertId) // Match by concert_id
+        .eq("orchestra_id", orchestraId)
+        .order("id", { ascending: true }); // Ensure correct order
+
+      if (error) {
+        console.error("Error fetching program:", error);
+        setErrorMessage("Could not load program.");
+      } else {
+        setProgram(data || []);
+      }
+    };
+
+    fetchProgram();
+  }, [orchestraId, concertId]);
+
+  if (!program.length) {
+    return <div className="text-center text-white">Loading... {errorMessage && `Error: ${errorMessage}`}</div>;
+  }
 
   return (
     <div className="relative min-h-screen bg-black text-white pt-20 lg:pt-20 px-6 pb-12">
@@ -19,10 +50,10 @@ export default function Repertoire() {
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {concertData.program.map((piece, index) => (
+        {program.map((piece, index) => (
           <Link 
             key={index} 
-            href={`/repertoire/${index}`} 
+            href={`/${orchestraId}/${concertId}/repertoire/${piece.id}`} // ✅ Corrected link structure
             className={`group relative block rounded-xl shadow-lg overflow-hidden transition-all 
                         hover:bg-gray-700 hover:scale-[1.03] hover:shadow-xl duration-300
                         ${enhancedContrast ? "bg-gray-700 border border-white" : "bg-gray-800"}`}
@@ -30,7 +61,7 @@ export default function Repertoire() {
             <div className="p-6">
               <h2 className="text-xl font-semibold text-white group-hover:text-indigo-400 transition-colors"
                   style={{ fontSize: fontSize * 1.4, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
-                {piece.pieceName} <span className="text-gray-500" style={{ fontSize }}>{`(${piece.duration})`}</span>
+                {piece.piece_name} <span className="text-gray-500" style={{ fontSize: fontSize * 1.4 }}>{`(${piece.duration})`}</span>
               </h2>
               <p className="text-gray-300 mt-1 text-lg" style={{ fontSize, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
                 {piece.composer} 
@@ -38,16 +69,16 @@ export default function Repertoire() {
                   <span className="text-gray-500">{` (${piece.born}-${piece.death})`}</span>
                 ) : ""}
               </p>
-              {piece.movements && (
+              {piece.movements && piece.movements.length > 0 && (
                 <ul className="text-gray-400 text-base mt-1 list-decimal list-inside" style={{ fontSize, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
-                  {piece.movements.map((movement, i) => (
+                  {piece.movements.map((movement: string, i: number) => (
                     <li key={i}>{movement}</li>
                   ))}
                 </ul>
               )}
-              {piece.soloists && (
+              {piece.soloists && piece.soloists.length > 0 && (
                 <p className="text-gray-300 text-base mt-1 font-bold" style={{ fontSize, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
-                  {piece.soloists.map(([name, instrument]) => `${name}, ${instrument}`).join(', ')}
+                  {piece.soloists.join(", ")}
                 </p>
               )}
             </div>

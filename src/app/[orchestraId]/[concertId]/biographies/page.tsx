@@ -1,12 +1,52 @@
-"use client"; // Ensure this is a client component
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import concertData from "@/data/concert.json";
-import { useAppContext } from "@/lib/AppStateProvider"; // Corrected import path
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import { useAppContext } from "@/lib/AppStateProvider";
 
 export default function Biographies() {
+  const { orchestraId, concertId } = useParams();
   const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext();
+  const [artists, setArtists] = useState<any[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log("Fetching biographies for:", { orchestraId, concertId });
+
+    if (!orchestraId || !concertId) {
+      setErrorMessage("Invalid URL parameters.");
+      return;
+    }
+
+    const fetchArtists = async () => {
+      const { data, error } = await supabase
+        .from("artists")
+        .select("*")
+        .eq("concert_id", concertId)
+        .eq("orchestra_id", orchestraId)
+        .order("name", { ascending: true });
+
+      if (error) {
+        console.error("Error fetching artist biographies:", error);
+        setErrorMessage("Could not load artist biographies.");
+      } else {
+        setArtists(data || []);
+      }
+    };
+
+    fetchArtists();
+  }, [orchestraId, concertId]);
+
+  if (errorMessage) {
+    return <p className="text-white text-center">{errorMessage}</p>;
+  }
+
+  if (!artists.length) {
+    return <p className="text-white text-center">Loading...</p>;
+  }
 
   return (
     <div className="relative min-h-screen bg-black text-white pt-20 lg:pt-20 px-6 pb-8">
@@ -16,22 +56,20 @@ export default function Biographies() {
       </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-        {concertData.artists.map((artist, index) => {
-          // Check if image exists
+        {artists.map((artist) => {
           const imageSrc = artist.image?.startsWith("/") 
             ? artist.image 
             : "/assets/images/default_musician.jpg"; 
 
           return (
             <Link 
-              key={index} 
-              href={`/biographies/${index}`} 
+              key={artist.id} 
+              href={`/${orchestraId}/${concertId}/biographies/${artist.id}`}  // ✅ Fixed routing
               className={`group relative flex items-stretch rounded-xl shadow-lg overflow-hidden transition-all 
                           hover:scale-[1.03] hover:shadow-xl duration-300
                           ${enhancedContrast ? "bg-gray-700 border border-white" : "bg-gray-800 hover:bg-gray-700"}`}
-              style={{ minHeight: fontSize * 7 }} // Allow the card to expand dynamically
+              style={{ minHeight: fontSize * 7 }} 
             >
-              {/* Square Image that fills the height of the card */}
               <div className="flex-shrink-0 w-[150px] sm:w-[180px] h-full">
                 <Image
                   src={imageSrc}
@@ -43,7 +81,6 @@ export default function Biographies() {
                 />
               </div>
 
-              {/* Text Section that expands dynamically */}
               <div className="p-4 flex flex-col justify-center flex-grow min-w-0">
                 <h2 className="font-semibold text-white group-hover:text-indigo-400 transition-colors break-words" 
                     style={{ fontSize: fontSize * 1.2 }}>
