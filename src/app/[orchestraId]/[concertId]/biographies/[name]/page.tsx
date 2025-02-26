@@ -3,19 +3,53 @@
 import { notFound } from "next/navigation";
 import { useParams } from "next/navigation"; // Use useParams for client-side routing
 import Image from "next/image";
-import concertData from "@/data/concert.json";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
 import { useAppContext } from "@/lib/AppStateProvider"; // Corrected import path
 
 export default function Biography() {
-  const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext();
-  const params = useParams(); // Get params in a client component
+  const params = useParams();
+  const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext(); // Destructure context values
+  const [artist, setArtist] = useState<any>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  if (!params?.id) return <p className="text-white text-center">Loading...</p>; // Handle undefined params
+  useEffect(() => {
+    console.log("Params received:", params);
 
-  const id = parseInt(params.id as string); // Ensure id is parsed safely
-  const artist = concertData.artists[id];
+    if (!params?.name || typeof params.name !== 'string') {
+      console.error("Error: Name param is missing or invalid!");
+      setErrorMessage("Loading...");
+      return;
+    }
 
-  if (!artist) return notFound(); // Handle invalid artist ID
+    const decodedName = decodeURIComponent(params.name);
+    console.log("Decoded Name:", decodedName);
+
+    const fetchArtist = async () => {
+      const { data, error } = await supabase
+        .from("artists")
+        .select("*")
+        .eq("name", decodedName)
+        .single();
+
+      if (error) {
+        console.error(`Error fetching artist for name "${decodedName}":`, error);
+        setErrorMessage("Artist not found.");
+      } else {
+        setArtist(data);
+      }
+    };
+
+    fetchArtist();
+  }, [params]);
+
+  if (errorMessage) {
+    return <p className="text-white text-center">{errorMessage}</p>;
+  }
+
+  if (!artist) {
+    return <p className="text-white text-center">Loading...</p>;
+  }
 
   // Check if image exists and starts with "/"
   const imageSrc = artist.image?.startsWith("/") 

@@ -56,15 +56,15 @@ export default function Biographies() {
       </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-        {artists.map((artist) => {
+        {artists.map((artist, index) => {
           const imageSrc = artist.image?.startsWith("/") 
             ? artist.image 
             : "/assets/images/default_musician.jpg"; 
 
           return (
             <Link 
-              key={artist.id} 
-              href={`/${orchestraId}/${concertId}/biographies/${artist.id}`}  // ✅ Fixed routing
+              key={artist.id ?? `artist-${index}`}  // Fallback to index if id is missing
+              href={`/${orchestraId}/${concertId}/biographies/${artist.name}`}  
               className={`group relative flex items-stretch rounded-xl shadow-lg overflow-hidden transition-all 
                           hover:scale-[1.03] hover:shadow-xl duration-300
                           ${enhancedContrast ? "bg-gray-700 border border-white" : "bg-gray-800 hover:bg-gray-700"}`}
