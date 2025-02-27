@@ -36,6 +36,9 @@ export default function RootLayout({
   // Check if we're on the homepage (`/`) or a concert page (`/[orchestraId]/[concertId]`)
   const isHomeOrConcertPage = pathname === "/" || /^\/[^/]+\/[^/]+$/.test(pathname);
 
+  // Check if we're on the meet-orchestra page (`/[orchestraId]/meet-orchestra`)
+  const isMeetOrchestraPage = /^\/[^/]+\/meet-orchestra$/.test(pathname);
+
   useEffect(() => {
     setIsSilencePhonesModalVisible(true);
   }, []);
@@ -46,7 +49,7 @@ export default function RootLayout({
         <AppStateProvider>
           {/* Conditionally render the logo on home/concert pages, back button elsewhere */}
           <div className="fixed top-4 left-4 p-2 bg-black rounded-full transition-all shadow-md z-30">
-            {isHomeOrConcertPage ? (
+            {isHomeOrConcertPage && !isMeetOrchestraPage ? (
               <Image 
                 src="/assets/images/CM_logo.png"
                 width={32}

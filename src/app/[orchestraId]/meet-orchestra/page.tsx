@@ -1,93 +1,121 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import musiciansData from "@/data/musicians.json";
+import { createClient } from "@supabase/supabase-js";
 import { useAppContext } from "@/lib/AppStateProvider"; // Import accessibility settings
+import { useParams } from "next/navigation"; // Import useParams for accessing route parameters
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+interface Musician {
+  id: number;
+  instrument: string;
+  photo: string;
+  name: string;
+  position?: string;
+}
 
 export default function MeetOrchestra() {
   const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext();
+  const [musicians, setMusicians] = useState<Musician[]>([]);
+  const params = useParams(); // Get route parameters
 
-  // Initialize state for all musician images, ensuring no empty strings
-  const initialImages = musiciansData.sections.flatMap((section) =>
-    section.musicians.map((musician) =>
-      musician.photo && musician.photo.trim() !== ""
-        ? `/assets/orchestra_headshots/${musician.photo}`
-        : "/assets/images/default_musician.jpg"
-    )
-  );
-  const [imageSources, setImageSources] = useState(initialImages);
+  useEffect(() => {
+    const fetchMusicians = async () => {
+      if (!params?.orchestraId) {
+        console.error("Error: Orchestra ID is missing!");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("orchestra_musicians")
+        .select("*")
+        .eq("orchestra_id", params.orchestraId); // Filter by orchestra_id
+
+      if (error) {
+        console.error("Error fetching musicians:", error);
+        return;
+      }
+
+      setMusicians(data as Musician[]);
+    };
+
+    fetchMusicians();
+  }, [params.orchestraId]);
 
   return (
     <div className="relative min-h-screen bg-black text-white pt-20 lg:pt-20 px-6 pb-8">
-      <h1 className={`font-extrabold text-center mb-6 ${enhancedContrast ? "underline" : ""}`} 
-          style={{ fontSize: fontSize * 1.8 }}>
+      <h1
+        className={`font-extrabold text-center mb-6 ${
+          enhancedContrast ? "underline" : ""
+        }`}
+        style={{ fontSize: fontSize * 1.8 }}
+      >
         Meet the Orchestra
       </h1>
 
       <div className="max-w-5xl mx-auto space-y-8">
-        {musiciansData.sections.map((section, sectionIndex) => (
-          <div key={section.section}>
-            <h2 className="font-bold mb-4" style={{ fontSize: fontSize * 1.4 }}>
-              {section.section}
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-              {section.musicians.map((musician, musicianIndex) => {
-                const imageIndex = sectionIndex * 100 + musicianIndex; // Unique index for each musician
-
-                return (
-                  <div
-                    key={musicianIndex}
-                    className={`group relative rounded-xl shadow-lg overflow-hidden transition-all 
-                                hover:scale-[1.03] hover:shadow-xl duration-300
-                                ${enhancedContrast ? "bg-gray-700 border border-white" : "bg-gray-800 hover:bg-gray-700"}`}
-                    style={{ minHeight: fontSize * 7 }}
-                  >
-                    {/* Square Image with Fallback Handling */}
-                    <div className="w-full h-auto aspect-square">
-                      <Image
-                        src={imageSources[imageIndex] || "/assets/images/default_musician.jpg"}
-                        width={200}
-                        height={200}
-                        alt={musician.name}
-                        className="object-cover w-full h-full"
-                        priority
-                        onError={() => {
-                          setImageSources((prev) => {
-                            if (prev[imageIndex] !== "/assets/images/default_musician.jpg") {
-                              const updatedImages = [...prev];
-                              updatedImages[imageIndex] = "/assets/images/default_musician.jpg";
-                              return updatedImages;
-                            }
-                            return prev;
-                          });
-                        }}
-                      />
-                    </div>
-
-                    {/* Text Content */}
-                    <div className="p-4 flex flex-col justify-center">
-                      <h3 className="font-semibold text-white group-hover:text-indigo-400 transition-colors break-words"
-                          style={{ fontSize: fontSize * 1.2 }}>
-                        {musician.name}
-                      </h3>
-                      {musician.position && (
-                        <p className="text-gray-400 break-words" style={{ fontSize }}>
-                          {musician.position}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-indigo-500 transition-colors"></div>
+        {musicians.length > 0 ? (
+          musicians.map((musician) => (
+            <div key={musician.id} className="mb-8">
+              <h2 className="font-bold mb-4" style={{ fontSize: fontSize * 1.4 }}>
+                {musician.instrument}
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div
+                  key={musician.id}
+                  className={`group relative rounded-xl shadow-lg overflow-hidden transition-all 
+                              hover:scale-[1.03] hover:shadow-xl duration-300
+                              ${
+                                enhancedContrast
+                                  ? "bg-gray-700 border border-white"
+                                  : "bg-gray-800 hover:bg-gray-700"
+                              }`}
+                  style={{ minHeight: fontSize * 7 }}
+                >
+                  <div className="w-full h-auto aspect-square">
+                    <Image
+                      src={
+                        musician.photo
+                          ? musician.photo
+                          : "/assets/images/default_musician.jpg"
+                      }
+                      width={200}
+                      height={200}
+                      alt={musician.name}
+                      className="object-cover w-full h-full"
+                      priority
+                    />
                   </div>
-                );
-              })}
+
+                  <div className="p-4 flex flex-col justify-center">
+                    <h3
+                      className="font-semibold text-white group-hover:text-indigo-400 transition-colors break-words"
+                      style={{ fontSize: fontSize * 1.2 }}
+                    >
+                      {musician.name}
+                    </h3>
+                    {musician.position && (
+                      <p className="text-gray-400 break-words" style={{ fontSize }}>
+                        {musician.position}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-indigo-500 transition-colors"></div>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p className="text-gray-400 text-center">Loading musicians...</p>
+        )}
       </div>
 
-      {/* True Tone & Blue Light Overlays */}
       {trueTone && <div className="absolute inset-0 bg-amber-400 opacity-40 pointer-events-none" />}
       {blueLight && <div className="absolute inset-0 bg-orange-500 opacity-40 pointer-events-none" />}
     </div>
