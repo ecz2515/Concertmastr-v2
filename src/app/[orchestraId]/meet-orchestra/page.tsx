@@ -47,6 +47,15 @@ export default function MeetOrchestra() {
     fetchMusicians();
   }, [params.orchestraId]);
 
+  // Group musicians by instrument
+  const groupedMusicians = musicians.reduce((acc, musician) => {
+    if (!acc[musician.instrument]) {
+      acc[musician.instrument] = [];
+    }
+    acc[musician.instrument].push(musician);
+    return acc;
+  }, {} as Record<string, Musician[]>);
+
   return (
     <div className="relative min-h-screen bg-black text-white pt-20 lg:pt-20 px-6 pb-8">
       <h1
@@ -59,55 +68,57 @@ export default function MeetOrchestra() {
       </h1>
 
       <div className="max-w-5xl mx-auto space-y-8">
-        {musicians.length > 0 ? (
-          musicians.map((musician) => (
-            <div key={musician.id} className="mb-8">
+        {Object.keys(groupedMusicians).length > 0 ? (
+          Object.entries(groupedMusicians).map(([instrument, musicians]) => (
+            <div key={instrument} className="mb-8">
               <h2 className="font-bold mb-4" style={{ fontSize: fontSize * 1.4 }}>
-                {musician.instrument}
+                {instrument}
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                <div
-                  key={musician.id}
-                  className={`group relative rounded-xl shadow-lg overflow-hidden transition-all 
-                              hover:scale-[1.03] hover:shadow-xl duration-300
-                              ${
-                                enhancedContrast
-                                  ? "bg-gray-700 border border-white"
-                                  : "bg-gray-800 hover:bg-gray-700"
-                              }`}
-                  style={{ minHeight: fontSize * 7 }}
-                >
-                  <div className="w-full h-auto aspect-square">
-                    <Image
-                      src={
-                        musician.photo
-                          ? musician.photo
-                          : "/assets/images/default_musician.jpg"
-                      }
-                      width={200}
-                      height={200}
-                      alt={musician.name}
-                      className="object-cover w-full h-full"
-                      priority
-                    />
-                  </div>
+                {musicians.map((musician) => (
+                  <div
+                    key={musician.id}
+                    className={`group relative rounded-xl shadow-lg overflow-hidden transition-all 
+                                hover:scale-[1.03] hover:shadow-xl duration-300
+                                ${
+                                  enhancedContrast
+                                    ? "bg-gray-700 border border-white"
+                                    : "bg-gray-800 hover:bg-gray-700"
+                                }`}
+                    style={{ minHeight: fontSize * 7 }}
+                  >
+                    <div className="w-full h-auto aspect-square">
+                      <Image
+                        src={
+                          musician.photo
+                            ? musician.photo
+                            : "/assets/images/default_musician.jpg"
+                        }
+                        width={200}
+                        height={200}
+                        alt={musician.name}
+                        className="object-cover w-full h-full"
+                        priority
+                      />
+                    </div>
 
-                  <div className="p-4 flex flex-col justify-center">
-                    <h3
-                      className="font-semibold text-white group-hover:text-indigo-400 transition-colors break-words"
-                      style={{ fontSize: fontSize * 1.2 }}
-                    >
-                      {musician.name}
-                    </h3>
-                    {musician.position && (
-                      <p className="text-gray-400 break-words" style={{ fontSize }}>
-                        {musician.position}
-                      </p>
-                    )}
-                  </div>
+                    <div className="p-4 flex flex-col justify-center">
+                      <h3
+                        className="font-semibold text-white group-hover:text-indigo-400 transition-colors break-words"
+                        style={{ fontSize: fontSize * 1.2 }}
+                      >
+                        {musician.name}
+                      </h3>
+                      {musician.position && (
+                        <p className="text-gray-400 break-words" style={{ fontSize }}>
+                          {musician.position}
+                        </p>
+                      )}
+                    </div>
 
-                  <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-indigo-500 transition-colors"></div>
-                </div>
+                    <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-indigo-500 transition-colors"></div>
+                  </div>
+                ))}
               </div>
             </div>
           ))

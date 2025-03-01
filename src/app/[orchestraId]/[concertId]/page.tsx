@@ -27,24 +27,28 @@ export default function ConcertPage() {
       return;
     }
 
-    console.log("Fetching concert from Supabase:", concertId);
+    console.log("Fetching all concerts from Supabase for debugging purposes");
 
-    const fetchConcert = async () => {
+    const fetchConcerts = async () => {
       const { data, error } = await supabase
         .from("concerts")
-        .select("*")
-        .eq("id", concertId) // Use concertId directly (no reformatting)
-        .single();
+        .select("*");
 
       if (error) {
-        console.error("Error fetching concert:", error);
+        console.error("Error fetching concerts:", error);
         setErrorMessage(error.message);
       } else {
-        setConcert(data);
+        console.log("All concerts data:", data); // Debugging: Show all concerts
+        const concertData = data.find(concert => concert.id === concertId && concert.orchestra_id === orchestraId);
+        if (concertData) {
+          setConcert(concertData);
+        } else {
+          setErrorMessage("Concert not found.");
+        }
       }
     };
 
-    fetchConcert();
+    fetchConcerts();
   }, [orchestraId, concertId]);
 
   if (!concert) {
