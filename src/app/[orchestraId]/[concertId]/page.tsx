@@ -5,127 +5,137 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { useAppContext } from "@/lib/AppStateProvider"; // Import global state hook
+import { useAppContext } from "@/lib/AppStateProvider";
 
 export default function ConcertPage() {
+  // 1) Grab route parameters
   const { orchestraId, concertId } = useParams();
   const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext();
+
+  // 2) Manage local state
   const [concert, setConcert] = useState<any>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // 3) Validate params & fetch from DB
   useEffect(() => {
-    console.log("Orchestra ID:", orchestraId); // Debugging
-    console.log("Concert ID:", concertId); // Debugging
-
-    if (typeof orchestraId !== "string" || typeof concertId !== "string") {
-      setErrorMessage("Invalid concert or orchestra ID.");
+    // If route params are missing → show landing page
+    if (!orchestraId || !concertId || typeof orchestraId !== "string" || typeof concertId !== "string") {
+      setConcert(null);
       return;
     }
 
+    // If concertId must be YYYY-MM-DD, check that
     if (!/^\d{4}-\d{2}-\d{2}$/.test(concertId)) {
-      setErrorMessage("Invalid concert date format.");
+      setConcert(null);
       return;
     }
 
-    console.log("Fetching all concerts from Supabase for debugging purposes");
+    // Attempt to fetch from Supabase
+    const fetchConcert = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("concerts")
+          .select("id, orchestra_id, concert_name, time, venue, image, qr_code, intermission_after, intermission_duration, created_at")
+          .eq("id", concertId)
+          .eq("orchestra_id", orchestraId)
+          .single();
 
-    const fetchConcerts = async () => {
-      const { data, error } = await supabase
-        .from("concerts")
-        .select("*");
-
-      if (error) {
-        console.error("Error fetching concerts:", error);
-        setErrorMessage(error.message);
-      } else {
-        console.log("All concerts data:", data); // Debugging: Show all concerts
-        const concertData = data.find(concert => concert.id === concertId && concert.orchestra_id === orchestraId);
-        if (concertData) {
-          setConcert(concertData);
-        } else {
-          setErrorMessage("Concert not found.");
+        if (error) {
+          throw error;
         }
+
+        setConcert(data);
+      } catch (err: any) {
+        console.error("Error fetching concert:", err);
+        setConcert(null);
       }
     };
 
-    fetchConcerts();
+    fetchConcert();
   }, [orchestraId, concertId]);
 
+  // 4) If we have no concert → show landing page
   if (!concert) {
-    return <div className="text-center text-white">Loading... {errorMessage && `Error: ${errorMessage}`}</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white px-6 text-center">
+        <Image
+          src="/assets/images/logo.png"
+          width={120}
+          height={120}
+          alt="Concertmastr Logo"
+          style={{ width: "auto", height: "auto" }}
+        />
+        <h1 className="text-4xl font-bold mt-4">Welcome to Concertmastr</h1>
+        <p className="text-gray-400 mt-2 max-w-md">
+          Experience digital concert programs like never before. Scan a QR code at your concert
+          venue to access program details.
+        </p>
+        <div className="mt-6">
+          <Link
+            href="/explore"
+            className="px-6 py-3 text-lg bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-500 transition"
+          >
+            Explore Concerts
+          </Link>
+        </div>
+      </div>
+    );
   }
 
-  const { id, concert_name, date, venue, time } = concert;
-
-  // Function to convert time from 24-hour format to 12-hour format
-  const convertTimeTo12HourFormat = (time: string) => {
-    const [hour, minute] = time.split(":").map(Number);
-    const period = hour >= 12 ? "PM" : "AM";
-    const hour12 = hour % 12 || 12; // Convert 0 to 12 for 12-hour format
-    return `${hour12}:${minute.toString().padStart(2, "0")} ${period}`;
-  };
-
-  const formattedTime = convertTimeTo12HourFormat(time);
+  // 5) Destructure columns that you selected above
+  const { id, concert_name, time, venue, image, qr_code, intermission_after, intermission_duration, created_at } = concert;
 
   return (
     <div className="fixed inset-0 flex flex-col bg-black text-white overflow-hidden">
-      {/* Background Image with Shadow Overlay */}
+      {/* Background image */}
       <div className="absolute inset-0 h-2/3">
-        <Image 
-          src="/assets/images/default_event-image.jpg"
+        <Image
+          src={image || "/assets/images/default_event-image.jpg"}
           fill
-          style={{ objectFit: 'cover', objectPosition: 'center' }}
+          style={{ objectFit: "cover" }}
           alt="Concert Image"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black" 
-          style={{ background: 'linear-gradient(to bottom, transparent 30%, black 100%)' }} 
-        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black" />
       </div>
 
-      {/* Push Main Content to Bottom */}
+      {/* Main content */}
       <div className="flex flex-col justify-end flex-grow relative z-20 w-full max-w-2xl mx-auto px-6 pb-4">
         <div className="text-center mb-4">
-          <h1 className={`font-extrabold tracking-wide ${enhancedContrast ? 'underline' : ''}`} 
-            style={{ fontSize: fontSize * 1.8, lineHeight: fontSize > 16 ? 1.4 : 1.2 }}>
+          <h1
+            className="font-extrabold tracking-wide"
+            style={{ fontSize: fontSize * 1.8 }}
+          >
             {concert_name}
           </h1>
-          <p className="text-gray-300 text-base mt-2" 
-            style={{ fontSize, lineHeight: fontSize > 16 ? 1.4 : 1.2 }}>
-            {id} | {venue} | {formattedTime}
+          <p className="text-gray-300 text-base mt-2">
+            {id} | {venue} | {time}
           </p>
         </div>
 
-        {/* Buttons in One Column */}
+        {/* Navigation buttons */}
         <div className="flex flex-col space-y-3">
           {[
-            { href: `/${orchestraId}/${concertId}/repertoire`, label: "Repertoire" }, // Per concert
-            { href: `/${orchestraId}/${concertId}/biographies`, label: "Biographies" }, // Per concert
-            { href: `/${orchestraId}/meet-orchestra`, label: "Meet the Orchestra" }, // Per orchestra
-            { href: `/${orchestraId}/acks`, label: "Acknowledgements" } // Per orchestra
+            { href: `/${orchestraId}/${concertId}/repertoire`, label: "Repertoire" },
+            { href: `/${orchestraId}/${concertId}/biographies`, label: "Biographies" },
+            { href: `/${orchestraId}/meet-orchestra`, label: "Meet the Orchestra" },
+            { href: `/${orchestraId}/acks`, label: "Acknowledgements" },
           ].map(({ href, label }) => (
-            <Link 
+            <Link
               key={href}
               href={href}
-              className={`group relative block rounded-xl shadow-lg overflow-hidden transition-all text-center ${
-                enhancedContrast ? "bg-gray-700 border border-white" : "bg-gray-800"
-              } hover:bg-gray-700 hover:scale-[1.03] hover:shadow-xl duration-300`}
+              className="group block rounded-xl shadow-lg bg-gray-800 hover:bg-gray-700 hover:scale-[1.03] duration-300"
             >
-              <div className="p-3">
-                <span className={`text-lg font-medium text-white ${enhancedContrast ? "text-indigo-400 font-bold" : ""}`} 
-                  style={{ fontSize: fontSize * 1.1 }}>
-                  {label}
-                </span>
+              <div className="p-3 text-center text-lg font-medium text-white">
+                {label}
               </div>
             </Link>
           ))}
         </div>
-
       </div>
 
-      {/* True Tone and Blue Light Overlays */}
-      {trueTone && <div className="absolute inset-0 bg-amber-400 opacity-40 pointer-events-none" />}
-      {blueLight && <div className="absolute inset-0 bg-orange-500 opacity-40 pointer-events-none" />}
+      {/* Optional overlays */}
+      {trueTone && <div className="absolute inset-0 bg-amber-400 opacity-40" />}
+      {blueLight && <div className="absolute inset-0 bg-orange-500 opacity-40" />}
     </div>
   );
 }
