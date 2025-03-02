@@ -33,11 +33,12 @@ export default function RootLayout({
   const [isSilencePhonesModalVisible, setIsSilencePhonesModalVisible] = useState(true);
   const pathname = usePathname();
 
-  // Check if we're on the homepage (`/`) or a concert page (`/[orchestraId]/[concertId]`)
-  const isHomeOrConcertPage = pathname === "/" || /^\/[^/]+\/[^/]+$/.test(pathname);
+  // Check if we're on the homepage (`/`)
+  const isHomePage = pathname === "/" || /^\/[^/]+\/[^/]+$/.test(pathname);
 
-  // Check if we're on the meet-orchestra page (`/[orchestraId]/meet-orchestra`)
-  const isMeetOrchestraPage = /^\/[^/]+\/meet-orchestra$/.test(pathname);
+  // Check if the route ends with `/acks`
+  const isAcksPage = /\/acks$/.test(pathname);
+  const isOrchestraPage = /\/meet-orchestra$/.test(pathname);
 
   useEffect(() => {
     setIsSilencePhonesModalVisible(true);
@@ -47,9 +48,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AppStateProvider>
-          {/* Conditionally render the logo on home/concert pages, back button elsewhere */}
+          {/* Conditionally render the logo on the homepage, back button elsewhere */}
           <div className="fixed top-4 left-4 p-2 bg-black rounded-full transition-all shadow-md z-30">
-            {isHomeOrConcertPage && !isMeetOrchestraPage ? (
+            {isHomePage && !isAcksPage && !isOrchestraPage ? (
               <Image 
                 src="/assets/images/CM_logo.png"
                 width={32}
