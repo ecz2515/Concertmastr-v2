@@ -52,20 +52,17 @@ export default function ProgramNote() {
     <div className="relative min-h-screen bg-black text-white pt-20 lg:pt-20 px-6 pb-12">
       <div className="max-w-3xl mx-auto">
         <h1 className={`font-extrabold text-center mb-3 tracking-wide ${enhancedContrast ? "underline" : ""}`} 
-            style={{ fontSize: fontSize * 1.8 }}>
+            style={{ fontSize: fontSize * 2.0 }}>
           {piece.piece_name}
         </h1>
-        <h2 className="text-center text-gray-400" style={{ fontSize: fontSize * 1.2 }}>
+        <h2 className="text-center text-gray-400" style={{ fontSize: fontSize * 1.4 }}>
           {piece.composer}
         </h2>
         {piece.born && piece.death && (
-          <p className="text-center text-gray-500 mb-8" style={{ fontSize: fontSize * 0.9 }}>
+          <p className="text-center text-gray-500 mb-8" style={{ fontSize: fontSize * 1.2 }}>
             ({piece.born} - {piece.death})
           </p>
         )}
-        <p className="text-center text-gray-500 mb-8" style={{ fontSize }}>
-          {piece.duration}
-        </p>
         <p className="text-gray-200" style={{ fontSize }}>{piece.program_notes}</p>
       </div>
 
