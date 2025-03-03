@@ -30,15 +30,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isSilencePhonesModalVisible, setIsSilencePhonesModalVisible] = useState(true);
+  const [isSilencePhonesModalVisible, setIsSilencePhonesModalVisible] =
+    useState(true);
   const pathname = usePathname();
 
-  // Check if we're on the homepage (`/`)
   const isHomePage = pathname === "/";
-
-  // Check if the route ends with `/acks`
   const isAcksPage = /\/acks$/.test(pathname);
   const isOrchestraPage = /\/meet-orchestra$/.test(pathname);
+  const isConcertPage = /^\/[^/]+\/[^/]+$/.test(pathname);
 
   useEffect(() => {
     setIsSilencePhonesModalVisible(true);
@@ -46,14 +45,22 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <AppStateProvider>
-          {/* Conditionally render the logo and settings button only if not on the homepage */}
           {!isHomePage && (
             <>
-              <div className="fixed top-4 left-4 p-2 bg-black rounded-full transition-all shadow-md z-30">
-                {!isAcksPage && !isOrchestraPage ? (
-                  <Image 
+              <div
+                style={{
+                  position: "fixed",
+                  top: "1.5rem",
+                  left: "1rem",
+                  zIndex: 1000,
+                }}
+              >
+                {isConcertPage && !isAcksPage && !isOrchestraPage ? (
+                  <Image
                     src="/assets/images/CM_logo.png"
                     width={32}
                     height={32}
@@ -64,13 +71,20 @@ export default function RootLayout({
                 )}
               </div>
 
-              <div style={{ position: 'fixed', top: '1.5rem', right: '1rem', zIndex: 1000 }}>
+              <div
+                style={{
+                  position: "fixed",
+                  top: "1.5rem",
+                  right: "1rem",
+                  zIndex: 1000,
+                }}
+              >
                 <button
                   style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'white',
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "white",
                   }}
                   onClick={() => setIsSettingsOpen(true)}
                   aria-label="Open Settings"
