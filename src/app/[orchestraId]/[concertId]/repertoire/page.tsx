@@ -63,7 +63,7 @@ export default function Repertoire() {
         {program.pieces.map((piece, index) => (
           <div key={piece.id}>
             {program.intermissionAfter !== null && program.intermissionAfter === index && (
-              <div key={`intermission-${index}`} className="text-center text-gray-300 text-lg italic w-full mb-4">
+              <div key={`intermission-${index}`} className="text-center text-gray-300 italic w-full mb-4" style={{ fontSize }}>
                 ~ {program.intermissionDuration} minute intermission ~
               </div>
             )}

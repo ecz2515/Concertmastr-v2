@@ -61,7 +61,7 @@ export default function ConcertPage() {
           <h1 className="font-extrabold tracking-wide" style={{ fontSize: fontSize * 1.8 }}>
             {concert_name}
           </h1>
-          <p className="text-gray-300 text-base mt-2">
+          <p className="text-gray-300 mt-2" style={{ fontSize: fontSize * 1 }}>
             {id} | {venue} | {time}
           </p>
         </div>
@@ -78,7 +78,7 @@ export default function ConcertPage() {
               href={href}
               className="group block rounded-xl shadow-lg bg-gray-800 hover:bg-gray-700 hover:scale-[1.03] duration-300"
             >
-              <div className="p-3 text-center text-lg font-medium text-white">
+              <div className="p-3 text-center font-medium text-white" style={{ fontSize: fontSize * 1.2 }}>
                 {label}
               </div>
             </Link>
