@@ -43,6 +43,16 @@ export default function ConcertPage() {
   }, [orchestraId, concertId, router]);
 
   const { id, concert_name, time, venue, image } = concert || {};
+
+  // Function to convert time from 24-hour format to 12-hour format
+  const formatTime = (timeString: string) => {
+    const [hour, minute] = timeString.split(":");
+    const hourInt = parseInt(hour, 10);
+    const period = hourInt >= 12 ? "PM" : "AM";
+    const formattedHour = hourInt % 12 || 12; // Convert 0 to 12 for 12 AM
+    return `${formattedHour}:${minute} ${period}`;
+  };
+
   return (
     <div className="fixed inset-0 flex flex-col bg-black text-white overflow-hidden">
       <div className="absolute inset-0 h-2/3">
@@ -62,7 +72,7 @@ export default function ConcertPage() {
             {concert_name}
           </h1>
           <p className="text-gray-300 mt-2" style={{ fontSize: fontSize * 1 }}>
-            {id} | {venue} | {time}
+            {id} | {venue} | {time ? formatTime(time) : ""}
           </p>
         </div>
 
