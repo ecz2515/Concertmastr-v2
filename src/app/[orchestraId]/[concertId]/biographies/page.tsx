@@ -57,9 +57,11 @@ export default function Biographies() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
         {artists.map((artist, index) => {
-          const imageSrc = artist.image?.startsWith("/") 
-            ? artist.image 
-            : "/assets/images/default_musician.jpg"; 
+          const imageSrc = artist.image && artist.image.trim() !== ""
+            ? `https://concertmastr-assets.s3.amazonaws.com/${orchestraId}/artists-images/${concertId}.${artist.artist_id}.jpg`
+            : "/assets/images/default_musician.jpg";
+
+          console.log("Image source for artist:", artist.name, imageSrc); // Debug log for image path
 
           return (
             <Link 

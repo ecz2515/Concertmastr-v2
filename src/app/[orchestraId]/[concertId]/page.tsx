@@ -32,6 +32,7 @@ export default function ConcertPage() {
           throw error;
         }
 
+        console.log("Concert data from database:", data); // Debug log for concert data
         setConcert(data);
       } catch (err: any) {
         console.error("Error fetching concert:", err);
@@ -53,15 +54,32 @@ export default function ConcertPage() {
     return `${formattedHour}:${minute} ${period}`;
   };
 
+  // Get the image URL from AWS S3 if available, otherwise use default
+  console.log("Image field from database:", image); // Debug log for image field
+  const imageUrl = image && image.trim() !== ""
+    ? `https://concertmastr-assets.s3.amazonaws.com/${orchestraId}/concert-images/${concertId}.jpg`
+    : "/assets/images/default_event-image.jpg";
+
+  console.log("Final image URL:", imageUrl); // Debug log for final URL
+
   return (
     <div className="fixed inset-0 flex flex-col bg-black text-white overflow-hidden">
       <div className="absolute inset-0 h-2/3">
         <Image
-          src={image || "/assets/images/default_event-image.jpg"}
+          src={imageUrl}
           fill
           style={{ objectFit: "cover" }}
           alt="Concert Image"
           priority
+          onError={() => {
+            console.error("Error loading image, using default."); // Debug statement for image error
+            const imgElement = document.querySelector('[alt="Concert Image"]') as HTMLImageElement;
+            if (imgElement) {
+              imgElement.src = "/assets/images/default_event-image.jpg";
+            }
+            return true;
+          }}
+          unoptimized={true}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black" />
       </div>

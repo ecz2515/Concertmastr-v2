@@ -51,10 +51,15 @@ export default function Biography() {
     return <p className="text-white text-center">Loading...</p>;
   }
 
-  // Check if image exists and starts with "/"
-  const imageSrc = artist.image?.startsWith("/") 
-    ? artist.image 
+  const orchestraId = params.orchestraId as string;
+  const concertId = params.concertId as string;
+
+  // Get the image URL from AWS S3 if available, otherwise use default
+  const imageSrc = artist.image && artist.image.trim() !== ""
+    ? `https://concertmastr-assets.s3.amazonaws.com/${orchestraId}/artists-images/${concertId}.${artist.artist_id}.jpg`
     : "/assets/images/default_musician.jpg";
+
+  console.log("Image source for artist:", artist.name, imageSrc); // Debug log for image path
 
   return (
     <div className="relative min-h-screen bg-black text-white pt-20 lg:pt-20 px-6 pb-8">

@@ -81,7 +81,7 @@ export default function MeetOrchestra() {
                 {musicians.map((musician) => {
                   const orchestraId = params.orchestraId || "default_orchestra";
                   const imageUrl = musician.image && musician.image.trim() !== ""
-                    ? `https://concertmastr-assets.s3.amazonaws.com/${orchestraId}/${musician.image}`
+                    ? `https://concertmastr-assets.s3.amazonaws.com/${orchestraId}/musicians/${musician.image}`
                     : "/assets/images/default_musician.jpg";
 
                   return (
