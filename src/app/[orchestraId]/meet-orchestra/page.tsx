@@ -14,7 +14,7 @@ const supabase = createClient(
 interface Musician {
   id: number;
   instrument: string;
-  photo: string;
+  image: string | null; // Changed from photo to image
   name: string;
   position?: string;
 }
@@ -31,6 +31,8 @@ export default function MeetOrchestra() {
         return;
       }
 
+      console.log("Fetching musicians for orchestraId:", params.orchestraId);
+      
       const { data, error } = await supabase
         .from("orchestra_musicians")
         .select("*")
@@ -41,6 +43,7 @@ export default function MeetOrchestra() {
         return;
       }
 
+      console.log("Fetched musicians:", data);
       setMusicians(data as Musician[]);
     };
 
@@ -75,50 +78,60 @@ export default function MeetOrchestra() {
                 {instrument}
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                {musicians.map((musician) => (
-                  <div
-                    key={musician.id}
-                    className={`group relative rounded-xl shadow-lg overflow-hidden transition-all 
-                                hover:scale-[1.03] hover:shadow-xl duration-300
-                                ${
-                                  enhancedContrast
-                                    ? "bg-gray-700 border border-white"
-                                    : "bg-gray-800 hover:bg-gray-700"
-                                }`}
-                    style={{ minHeight: fontSize * 7 }}
-                  >
-                    <div className="w-full h-auto aspect-square">
-                      <Image
-                        src={
-                          musician.photo
-                            ? musician.photo
-                            : "/assets/images/default_musician.jpg"
-                        }
-                        width={200}
-                        height={200}
-                        alt={musician.name}
-                        className="object-cover w-full h-full"
-                        priority
-                      />
-                    </div>
+                {musicians.map((musician) => {
+                  const orchestraId = params.orchestraId || "default_orchestra";
+                  const imageUrl = musician.image && musician.image.trim() !== ""
+                    ? `https://concertmastr-assets.s3.amazonaws.com/${orchestraId}/${musician.image}`
+                    : "/assets/images/default_musician.jpg";
 
-                    <div className="p-4 flex flex-col justify-center">
-                      <h3
-                        className="font-semibold text-white group-hover:text-indigo-400 transition-colors break-words"
-                        style={{ fontSize: fontSize * 1.2 }}
-                      >
-                        {musician.name}
-                      </h3>
-                      {musician.position && (
-                        <p className="text-gray-400 break-words" style={{ fontSize }}>
-                          {musician.position}
-                        </p>
-                      )}
-                    </div>
+                  return (
+                    <div
+                      key={musician.id}
+                      className={`group relative rounded-xl shadow-lg overflow-hidden transition-all 
+                                  hover:scale-[1.03] hover:shadow-xl duration-300
+                                  ${
+                                    enhancedContrast
+                                      ? "bg-gray-700 border border-white"
+                                      : "bg-gray-800 hover:bg-gray-700"
+                                  }`}
+                      style={{ minHeight: fontSize * 7 }}
+                    >
+                      <div className="w-full h-auto aspect-square relative">
+                        <Image
+                          src={imageUrl}
+                          alt={musician.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className="object-cover"
+                          onError={() => {
+                            const imgElement = document.querySelector(`[alt="${musician.name}"]`) as HTMLImageElement;
+                            if (imgElement) {
+                              imgElement.src = "/assets/images/default_musician.jpg";
+                            }
+                            return true;
+                          }}
+                          unoptimized={true}
+                        />
+                      </div>
 
-                    <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-indigo-500 transition-colors"></div>
-                  </div>
-                ))}
+                      <div className="p-4 flex flex-col justify-center">
+                        <h3
+                          className="font-semibold text-white group-hover:text-indigo-400 transition-colors break-words"
+                          style={{ fontSize: fontSize * 1.2 }}
+                        >
+                          {musician.name}
+                        </h3>
+                        {musician.position && (
+                          <p className="text-gray-400 break-words" style={{ fontSize }}>
+                            {musician.position}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-indigo-500 transition-colors"></div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))
