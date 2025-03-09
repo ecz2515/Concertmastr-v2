@@ -1,74 +1,80 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { notFound, useParams } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
-import { useAppContext } from "@/lib/AppStateProvider"; // Import accessibility settings
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
+import { supabase } from "@/lib/supabaseClient"
+import { useAppContext } from "@/lib/AppStateProvider"
 
 export default function ProgramNote() {
-  const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext();
-  const { orchestraId, concertId, pieceId } = useParams(); // ✅ Correct param names
+  const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext()
+  const { orchestraId, concertId, pieceId } = useParams()
 
-  const [piece, setPiece] = useState<any>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [piece, setPiece] = useState<any>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    console.log("Fetching program note for:", { orchestraId, concertId, pieceId });
+    console.log("Fetching program note for:", { orchestraId, concertId, pieceId })
 
     if (!orchestraId || !concertId || !pieceId) {
-      setErrorMessage("Invalid URL parameters.");
-      return;
+      setErrorMessage("Invalid URL parameters.")
+      return
     }
 
     const fetchPiece = async () => {
       const { data, error } = await supabase
         .from("programs")
         .select("*")
-        .eq("id", pieceId) // ✅ Fetch specific piece
+        .eq("id", pieceId)
         .eq("concert_id", concertId)
         .eq("orchestra_id", orchestraId)
-        .single();
+        .single()
 
       if (error) {
-        console.error("Error fetching program note:", error);
-        setErrorMessage("Program note not found.");
+        console.error("Error fetching program note:", error)
+        setErrorMessage("Program note not found.")
       } else {
-        setPiece(data);
+        setPiece(data)
       }
-    };
+    }
 
-    fetchPiece();
-  }, [orchestraId, concertId, pieceId]);
+    fetchPiece()
+  }, [orchestraId, concertId, pieceId])
 
   if (errorMessage) {
-    return <p className="text-white text-center">{errorMessage}</p>;
+    return <div className="text-center text-destructive p-6">{errorMessage}</div>
   }
 
   if (!piece) {
-    return <p className="text-white text-center">Loading...</p>;
+    return <div className="text-center text-muted-foreground p-6">Loading...</div>
   }
 
   return (
-    <div className="relative min-h-screen bg-black text-white pt-20 lg:pt-20 px-6 pb-12">
-      <div className="max-w-3xl mx-auto">
-        <h1 className={`font-extrabold text-center mb-3 tracking-wide ${enhancedContrast ? "underline" : ""}`} 
-            style={{ fontSize: fontSize * 2.0 }}>
-          {piece.piece_name}
-        </h1>
-        <h2 className="text-center text-gray-400" style={{ fontSize: fontSize * 1.4 }}>
-          {piece.composer}
-        </h2>
-        {piece.born && piece.death && (
-          <p className="text-center text-gray-500 mb-8" style={{ fontSize: fontSize * 1.2 }}>
-            ({piece.born} - {piece.death})
+    <div className="page-container">
+      <div className="max-w-3xl mx-auto bg-card rounded-xl shadow-lg overflow-hidden border border-border/50 p-6">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold mb-2" style={{ fontSize: `${fontSize + 8}px` }}>
+            {piece.piece_name}
+          </h1>
+          <h2 className="text-xl text-muted-foreground" style={{ fontSize: `${fontSize + 2}px` }}>
+            {piece.composer}
+          </h2>
+          {piece.born && piece.death && (
+            <p className="text-sm text-muted-foreground" style={{ fontSize: `${fontSize - 2}px` }}>
+              ({piece.born} - {piece.death})
+            </p>
+          )}
+        </div>
+
+        <div className="prose prose-invert max-w-none">
+          <p className="text-card-foreground leading-relaxed" style={{ fontSize: `${fontSize}px` }}>
+            {piece.program_notes}
           </p>
-        )}
-        <p className="text-gray-200" style={{ fontSize }}>{piece.program_notes}</p>
+        </div>
       </div>
 
-      {/* True Tone & Blue Light Overlays */}
-      {trueTone && <div className="absolute inset-0 bg-amber-400 opacity-40 pointer-events-none" />}
-      {blueLight && <div className="absolute inset-0 bg-orange-500 opacity-40 pointer-events-none" />}
+      {trueTone && <div className="true-tone-overlay" />}
+      {blueLight && <div className="blue-light-overlay" />}
     </div>
-  );
+  )
 }
+

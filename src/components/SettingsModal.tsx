@@ -1,9 +1,10 @@
-import React from 'react';
-import { useAppContext } from '@/lib/AppStateProvider'; // or wherever you store the context
+"use client"
+import { useAppContext } from "@/lib/AppStateProvider"
+import { X } from "lucide-react"
 
 interface SettingsModalProps {
-  visible: boolean;
-  onClose: () => void;
+  visible: boolean
+  onClose: () => void
 }
 
 export default function SettingsModal({ visible, onClose }: SettingsModalProps) {
@@ -16,256 +17,171 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
     setTrueTone,
     blueLight,
     setBlueLight,
-  } = useAppContext();
+  } = useAppContext()
 
   // Define min and max font size
-  const minFontSize = 16;
-  const maxFontSize = 24;
+  const minFontSize = 16
+  const maxFontSize = 24
 
   // Increase or decrease font size within a min/max range
-  const increaseFontSize = () => setFontSize(Math.min(fontSize + 2, maxFontSize));
-  const decreaseFontSize = () => setFontSize(Math.max(fontSize - 2, minFontSize));
+  const increaseFontSize = () => setFontSize(Math.min(fontSize + 2, maxFontSize))
+  const decreaseFontSize = () => setFontSize(Math.max(fontSize - 2, minFontSize))
 
   // Function to reset all settings to default values
   const resetAllSettings = () => {
-    setEnhancedContrast(false);
-    setFontSize(16); // Assuming 16 is the default font size
-    setTrueTone(false);
-    setBlueLight(false);
-  };
+    setEnhancedContrast(false)
+    setFontSize(16)
+    setTrueTone(false)
+    setBlueLight(false)
+  }
 
   if (!visible) {
-    return null;
+    return null
   }
 
   return (
-    // Outer overlay takes the full screen
-    <div 
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50"
-      onClick={onClose} // Clicking the overlay closes the modal
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50"
+      onClick={onClose}
     >
-      {/* Modal container */}
       <div
-        onClick={(e) => e.stopPropagation()} // Prevent clicks in modal from closing it
+        onClick={(e) => e.stopPropagation()}
         className={`
-          bg-gray-800 text-white p-6 rounded-lg w-80 max-w-full relative
-          ${enhancedContrast ? 'border-2 border-white' : ''}
+          bg-card text-card-foreground p-6 rounded-lg w-80 max-w-full relative
+          ${enhancedContrast ? "border-2 border-primary" : "border border-border"}
+          shadow-lg
         `}
       >
-        {/* Circular Close Button in top-right corner, partially outside modal */}
         <button
           type="button"
           onClick={onClose}
-          className="
-            absolute
-            bg-gray-600
-            text-white
-            text-xl
-            rounded-full
-            w-10
-            h-10
-            flex
-            items-center
-            justify-center
-            shadow-md
-            -top-4 
-            -right-4
-            hover:bg-gray-600
-            active:bg-gray-500
-            focus:outline-none
-          "
+          className="absolute -top-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground shadow-md hover:bg-secondary/80 focus:outline-none"
         >
-          &times;
+          <X className="h-4 w-4" />
         </button>
 
         <h2 className="text-2xl font-bold mb-6 text-center">Settings</h2>
 
-        {/* 1) Enhanced Contrast */}
-        <div className="mb-6 flex items-center justify-between">
-          <span className="text-lg">Enhanced Contrast</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={enhancedContrast}
-              onChange={(e) => setEnhancedContrast(e.target.checked)}
-            />
-            <div
-              className="
-                w-11
-                h-6
-                bg-gray-200
-                rounded-full
-                peer-checked:bg-blue-600
-                dark:bg-gray-700
-                peer-focus:outline-none
-                peer-focus:ring-0
-                peer-checked:after:translate-x-full
-                peer-checked:after:border-white
-                after:content-['']
-                after:absolute
-                after:top-[2px]
-                after:left-[2px]
-                after:bg-white
-                after:border-gray-300
-                after:border
-                after:rounded-full
-                after:h-5
-                after:w-5
-                after:transition-all
-                dark:border-gray-600
-              "
-            />
-          </label>
-        </div>
+        <div className="space-y-6">
+          {/* Enhanced Contrast */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Enhanced Contrast</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={enhancedContrast}
+                onChange={(e) => setEnhancedContrast(e.target.checked)}
+              />
+              <div
+                className="
+                  w-11 h-6 bg-secondary rounded-full peer 
+                  peer-checked:bg-primary peer-focus:outline-none 
+                  peer-checked:after:translate-x-full peer-checked:after:border-white 
+                  after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                  after:bg-white after:border-gray-300 after:border after:rounded-full 
+                  after:h-5 after:w-5 after:transition-all
+                "
+              />
+            </label>
+          </div>
 
-        {/* 2) True Tone */}
-        <div className="mb-6 flex items-center justify-between">
-          <span className="text-lg">True Tone</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={trueTone}
-              onChange={(e) => setTrueTone(e.target.checked)}
-            />
-            <div
-              className="
-                w-11
-                h-6
-                bg-gray-200
-                rounded-full
-                peer-checked:bg-blue-600
-                dark:bg-gray-700
-                peer-focus:outline-none
-                peer-focus:ring-0
-                peer-checked:after:translate-x-full
-                peer-checked:after:border-white
-                after:content-['']
-                after:absolute
-                after:top-[2px]
-                after:left-[2px]
-                after:bg-white
-                after:border-gray-300
-                after:border
-                after:rounded-full
-                after:h-5
-                after:w-5
-                after:transition-all
-                dark:border-gray-600
-              "
-            />
-          </label>
-        </div>
+          {/* True Tone */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">True Tone</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={trueTone}
+                onChange={(e) => setTrueTone(e.target.checked)}
+              />
+              <div
+                className="
+                  w-11 h-6 bg-secondary rounded-full peer 
+                  peer-checked:bg-primary peer-focus:outline-none 
+                  peer-checked:after:translate-x-full peer-checked:after:border-white 
+                  after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                  after:bg-white after:border-gray-300 after:border after:rounded-full 
+                  after:h-5 after:w-5 after:transition-all
+                "
+              />
+            </label>
+          </div>
 
-        {/* 3) Blue Light Filter */}
-        <div className="mb-6 flex items-center justify-between">
-          <span className="text-lg">Blue Light Filter</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={blueLight}
-              onChange={(e) => setBlueLight(e.target.checked)}
-            />
-            <div
-              className="
-                w-11
-                h-6
-                bg-gray-200
-                rounded-full
-                peer-checked:bg-blue-600
-                dark:bg-gray-700
-                peer-focus:outline-none
-                peer-focus:ring-0
-                peer-checked:after:translate-x-full
-                peer-checked:after:border-white
-                after:content-['']
-                after:absolute
-                after:top-[2px]
-                after:left-[2px]
-                after:bg-white
-                after:border-gray-300
-                after:border
-                after:rounded-full
-                after:h-5
-                after:w-5
-                after:transition-all
-                dark:border-gray-600
-              "
-            />
-          </label>
-        </div>
+          {/* Blue Light Filter */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Blue Light Filter</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={blueLight}
+                onChange={(e) => setBlueLight(e.target.checked)}
+              />
+              <div
+                className="
+                  w-11 h-6 bg-secondary rounded-full peer 
+                  peer-checked:bg-primary peer-focus:outline-none 
+                  peer-checked:after:translate-x-full peer-checked:after:border-white 
+                  after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                  after:bg-white after:border-gray-300 after:border after:rounded-full 
+                  after:h-5 after:w-5 after:transition-all
+                "
+              />
+            </label>
+          </div>
 
-        {/* 4) Font Size (bottom) */}
-        <div className="mb-6 flex items-center justify-between">
-          <span className="text-lg">Font Size</span>
-          <div className="flex space-x-2">
-            <button
-              type="button"
-              onClick={decreaseFontSize}
-              disabled={fontSize <= minFontSize}
-              className={`
-                w-14
-                h-12
-                rounded
-                text-2xl
-                flex
-                items-center
-                justify-center
-                transition-colors
-                focus:outline-none
-                focus:ring-0
-                ${fontSize <= minFontSize ? 'bg-gray-500 cursor-not-allowed' : 'bg-gray-700 text-white hover:bg-gray-700 active:bg-gray-500'}
-              `}
-            >
-              –
-            </button>
-            <button
-              type="button"
-              onClick={increaseFontSize}
-              disabled={fontSize >= maxFontSize}
-              className={`
-                w-14
-                h-12
-                rounded
-                text-2xl
-                flex
-                items-center
-                justify-center
-                transition-colors
-                focus:outline-none
-                focus:ring-0
-                ${fontSize >= maxFontSize ? 'bg-gray-500 cursor-not-allowed' : 'bg-gray-700 text-white hover:bg-gray-700 active:bg-gray-500'}
-              `}
-            >
-              +
-            </button>
+          {/* Font Size */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Font Size</span>
+            <div className="flex space-x-2">
+              <button
+                type="button"
+                onClick={decreaseFontSize}
+                disabled={fontSize <= minFontSize}
+                className={`
+                  w-10 h-10 rounded flex items-center justify-center transition-colors focus:outline-none
+                  ${
+                    fontSize <= minFontSize
+                      ? "bg-secondary/50 text-muted-foreground cursor-not-allowed"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                  }
+                `}
+              >
+                –
+              </button>
+              <button
+                type="button"
+                onClick={increaseFontSize}
+                disabled={fontSize >= maxFontSize}
+                className={`
+                  w-10 h-10 rounded flex items-center justify-center transition-colors focus:outline-none
+                  ${
+                    fontSize >= maxFontSize
+                      ? "bg-secondary/50 text-muted-foreground cursor-not-allowed"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                  }
+                `}
+              >
+                +
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Reset All Button */}
-        <div className="flex justify-center mt-6">
+        <div className="mt-6">
           <button
             type="button"
             onClick={resetAllSettings}
-            className="
-              bg-red-700
-              text-white
-              w-full
-              py-2
-              rounded
-              shadow-md
-              hover:bg-red-700
-              active:bg-red-600
-              focus:outline-none
-              focus:ring-0
-            "
+            className="w-full py-2 rounded bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
           >
             Reset All
           </button>
         </div>
       </div>
     </div>
-  );
+  )
 }
+

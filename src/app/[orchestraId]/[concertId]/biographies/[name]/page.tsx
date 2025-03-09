@@ -1,93 +1,96 @@
-"use client"; // Ensure this is a client component
-
-import { notFound } from "next/navigation";
-import { useParams } from "next/navigation"; // Use useParams for client-side routing
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { useAppContext } from "@/lib/AppStateProvider"; // Corrected import path
+"use client"
+import { useParams } from "next/navigation"
+import Image from "next/image"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabaseClient"
+import { useAppContext } from "@/lib/AppStateProvider"
 
 export default function Biography() {
-  const params = useParams();
-  const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext(); // Destructure context values
-  const [artist, setArtist] = useState<any>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const params = useParams()
+  const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext()
+  const [artist, setArtist] = useState<any>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    console.log("Params received:", params);
+    console.log("Params received:", params)
 
-    if (!params?.name || typeof params.name !== 'string') {
-      console.error("Error: Name param is missing or invalid!");
-      setErrorMessage("Loading...");
-      return;
+    if (!params?.name || typeof params.name !== "string") {
+      console.error("Error: Name param is missing or invalid!")
+      setErrorMessage("Loading...")
+      return
     }
 
-    const decodedName = decodeURIComponent(params.name);
-    console.log("Decoded Name:", decodedName);
+    const decodedName = decodeURIComponent(params.name)
+    console.log("Decoded Name:", decodedName)
 
     const fetchArtist = async () => {
-      const { data, error } = await supabase
-        .from("artists")
-        .select("*")
-        .eq("name", decodedName)
-        .single();
+      const { data, error } = await supabase.from("artists").select("*").eq("name", decodedName).single()
 
       if (error) {
-        console.error(`Error fetching artist for name "${decodedName}":`, error);
-        setErrorMessage("Artist not found.");
+        console.error(`Error fetching artist for name "${decodedName}":`, error)
+        setErrorMessage("Artist not found.")
       } else {
-        setArtist(data);
+        setArtist(data)
       }
-    };
+    }
 
-    fetchArtist();
-  }, [params]);
+    fetchArtist()
+  }, [params])
 
   if (errorMessage) {
-    return <p className="text-white text-center">{errorMessage}</p>;
+    return <p className="text-center text-destructive p-6">{errorMessage}</p>
   }
 
   if (!artist) {
-    return <p className="text-white text-center">Loading...</p>;
+    return <p className="text-center text-muted-foreground p-6">Loading...</p>
   }
 
-  const orchestraId = params.orchestraId as string;
-  const concertId = params.concertId as string;
+  const orchestraId = params.orchestraId as string
+  const concertId = params.concertId as string
 
   // Get the image URL from AWS S3 if available, otherwise use default
-  const imageSrc = artist.image && artist.image.trim() !== ""
-    ? `https://concertmastr-assets.s3.amazonaws.com/${orchestraId}/artists-images/${concertId}.${artist.artist_id}.jpg`
-    : "/assets/images/default_musician.jpg";
+  const imageSrc =
+    artist.image && artist.image.trim() !== ""
+      ? `https://concertmastr-assets.s3.amazonaws.com/${orchestraId}/artists-images/${concertId}.${artist.artist_id}.jpg`
+      : "/assets/images/default_musician.jpg"
 
-  console.log("Image source for artist:", artist.name, imageSrc); // Debug log for image path
+  console.log("Image source for artist:", artist.name, imageSrc)
 
   return (
-    <div className="relative min-h-screen bg-black text-white pt-20 lg:pt-20 px-6 pb-8">
-      <div className="max-w-3xl mx-auto">
-        <Image
-          src={imageSrc}
-          width={400}
-          height={400}
-          alt={artist.imageAlt || artist.name}
-          className="w-60 h-60 object-cover rounded-lg mx-auto"
-        />
-        <h1 className={`font-bold mt-4 text-center ${enhancedContrast ? 'underline' : ''}`} 
-            style={{ fontSize: fontSize * 1.8 }}>
-          {artist.name}
-        </h1>
-        {artist.role && (
-          <h2 className="text-lg text-gray-300 text-center" style={{ fontSize }}>
-            {artist.role}
-          </h2>
-        )}
-        <p className="mt-8 text-gray-200" style={{ fontSize }}>
-          {artist.bio}
-        </p>
+    <div className="page-container">
+      <div className="max-w-2xl mx-auto bg-card rounded-xl shadow-lg overflow-hidden border border-border/50">
+        <div className="p-6 flex flex-col items-center">
+          <div className="relative w-48 h-48 md:w-64 md:h-64 mb-6 rounded-full overflow-hidden border-4 border-secondary">
+            <Image
+              src={imageSrc || "/placeholder.svg"}
+              fill
+              sizes="(max-width: 768px) 12rem, 16rem"
+              alt={artist.imageAlt || artist.name}
+              className="object-cover"
+            />
+          </div>
+
+          <h1 className="text-3xl font-bold mb-2 text-center" style={{ fontSize: `${fontSize + 8}px` }}>
+            {artist.name}
+          </h1>
+
+          {artist.role && (
+            <h2 className="text-xl text-muted-foreground mb-6 text-center" style={{ fontSize: `${fontSize + 2}px` }}>
+              {artist.role}
+            </h2>
+          )}
+
+          <div className="prose prose-invert max-w-none">
+            <p className="text-card-foreground leading-relaxed" style={{ fontSize: `${fontSize}px` }}>
+              {artist.bio}
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* True Tone & Blue Light Overlays */}
-      {trueTone && <div className="absolute inset-0 bg-amber-400 opacity-40 pointer-events-none" />}
-      {blueLight && <div className="absolute inset-0 bg-orange-500 opacity-40 pointer-events-none" />}
+      {trueTone && <div className="true-tone-overlay" />}
+      {blueLight && <div className="blue-light-overlay" />}
     </div>
-  );
+  )
 }
+

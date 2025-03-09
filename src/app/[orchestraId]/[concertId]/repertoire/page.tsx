@@ -1,111 +1,126 @@
-"use client";
+"use client"
 
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
-import { useAppContext } from "@/lib/AppStateProvider"; // Import accessibility settings
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
+import { supabase } from "@/lib/supabaseClient"
+import { useAppContext } from "@/lib/AppStateProvider"
+import { ChevronRight } from "lucide-react"
 
 export default function Repertoire() {
-  const { orchestraId, concertId } = useParams();
-  const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext();
-  const [program, setProgram] = useState<{ pieces: any[]; intermissionAfter: number | null; intermissionDuration: number | null }>({ pieces: [], intermissionAfter: null, intermissionDuration: null });
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { orchestraId, concertId } = useParams()
+  const { trueTone, blueLight, fontSize } = useAppContext()
+  const [program, setProgram] = useState<{
+    pieces: any[]
+    intermissionAfter: number | null
+    intermissionDuration: number | null
+  }>({ pieces: [], intermissionAfter: null, intermissionDuration: null })
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    console.log("Fetching repertoire for:", orchestraId, concertId);
+    console.log("Fetching repertoire for:", orchestraId, concertId)
 
     const fetchProgram = async () => {
       const { data: programData, error: programError } = await supabase
         .from("programs")
         .select("*")
-        .eq("concert_id", concertId) // Match by concert_id
+        .eq("concert_id", concertId)
         .eq("orchestra_id", orchestraId)
-        .order("id", { ascending: true }); // Ensure correct order
+        .order("id", { ascending: true })
 
       const { data: concertData, error: concertError } = await supabase
         .from("concerts")
         .select("intermission_after, intermission_duration")
         .eq("id", concertId)
-        .single(); // Fetch intermission details
+        .single()
 
       if (programError || concertError) {
-        console.error("Error fetching program or concert details:", programError || concertError);
-        setErrorMessage("Could not load program.");
+        console.error("Error fetching program or concert details:", programError || concertError)
+        setErrorMessage("Could not load program.")
       } else {
         setProgram({
           pieces: programData || [],
           intermissionAfter: concertData?.intermission_after ?? null,
           intermissionDuration: concertData?.intermission_duration ?? null,
-        });
+        })
       }
-    };
+    }
 
-    fetchProgram();
-  }, [orchestraId, concertId]);
+    fetchProgram()
+  }, [orchestraId, concertId])
 
   if (!program.pieces.length) {
-    return <div className="text-center text-white">Loading... {errorMessage && `Error: ${errorMessage}`}</div>;
+    return (
+      <div className="text-center text-muted-foreground p-6">Loading... {errorMessage && `Error: ${errorMessage}`}</div>
+    )
   }
 
   return (
-    <div className="relative min-h-screen bg-black text-white pt-20 lg:pt-20 px-6 pb-12">
-      <h1 className={`font-extrabold text-center mb-3 tracking-wide ${enhancedContrast ? "underline" : ""}`} 
-          style={{ fontSize: fontSize * 1.8 }}>
+    <div className="page-container">
+      <h1 className="section-title" style={{ fontSize: `${fontSize + 8}px` }}>
         Repertoire
       </h1>
-      <h2 className="text-lg text-center text-gray-400 mb-8" style={{ fontSize }}>
+      <h2 className="text-center text-muted-foreground mb-8" style={{ fontSize: `${fontSize}px` }}>
         Tap to see program notes
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div className="max-w-3xl mx-auto space-y-6">
         {program.pieces.map((piece, index) => (
-          <div key={piece.id}>
+          <div key={piece.id} className="border-b border-border/50 pb-6 last:border-0">
             {program.intermissionAfter !== null && program.intermissionAfter === index && (
-              <div key={`intermission-${index}`} className="text-center text-gray-300 italic w-full mb-4" style={{ fontSize }}>
-                ~ {program.intermissionDuration} minute intermission ~
+              <div className="text-center py-4 mb-6 bg-secondary/50 rounded-lg">
+                <p className="text-muted-foreground italic" style={{ fontSize: `${fontSize}px` }}>
+                  ~ {program.intermissionDuration} minute intermission ~
+                </p>
               </div>
             )}
-            <Link 
-              href={`/${orchestraId}/${concertId}/repertoire/${piece.id}`} 
-              className={`group relative block rounded-xl shadow-lg overflow-hidden transition-all 
-                          hover:bg-gray-700 hover:scale-[1.03] hover:shadow-xl duration-300
-                          ${enhancedContrast ? "bg-gray-700 border border-white" : "bg-gray-800"}`}
-            >
-              <div className="p-6">
-                <h2 className="text-xl font-semibold text-white group-hover:text-indigo-400 transition-colors"
-                    style={{ fontSize: fontSize * 1.4, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
-                  {piece.piece_name} <span className="text-gray-500" style={{ fontSize: fontSize * 1.4 }}>{`(${piece.duration})`}</span>
-                </h2>
-                <p className="text-gray-300 mt-1 text-lg" style={{ fontSize, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
-                  {piece.composer} 
-                  {piece.born && piece.death ? (
-                    <span className="text-gray-500">{` (${piece.born}-${piece.death})`}</span>
-                  ) : ""}
-                </p>
+            <Link href={`/${orchestraId}/${concertId}/repertoire/${piece.id}`}>
+              <div className="concert-card group p-5 relative">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2
+                      className="text-xl font-semibold group-hover:text-primary transition-colors"
+                      style={{ fontSize: `${fontSize + 2}px` }}
+                    >
+                      {piece.piece_name}{" "}
+                      <span className="text-sm text-muted-foreground ml-1">{`(${piece.duration})`}</span>
+                    </h2>
+                    <p className="text-muted-foreground" style={{ fontSize: `${fontSize}px` }}>
+                      {piece.composer}
+                      {piece.born && piece.death ? (
+                        <span className="text-sm text-muted-foreground">{` (${piece.born}-${piece.death})`}</span>
+                      ) : (
+                        ""
+                      )}
+                    </p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+
                 {piece.movements && piece.movements.length > 0 && (
-                  <ul className="text-gray-400 text-base mt-1 list-decimal list-inside" style={{ fontSize, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
+                  <ul className="mt-3 space-y-1 text-muted-foreground" style={{ fontSize: `${fontSize - 1}px` }}>
                     {piece.movements.map((movement: string, i: number) => (
-                      <li key={`${piece.id}-movement-${i}`}>{movement}</li>
+                      <li key={`${piece.id}-movement-${i}`} className="pl-4 border-l border-border">
+                        {movement}
+                      </li>
                     ))}
                   </ul>
                 )}
+
                 {piece.soloists && piece.soloists.length > 0 && (
-                  <p className="text-gray-300 text-base mt-1 font-bold" style={{ fontSize, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
-                    {piece.soloists.join(", ")}
+                  <p className="mt-3 text-muted-foreground" style={{ fontSize: `${fontSize - 1}px` }}>
+                    Soloists: {piece.soloists.join(", ")}
                   </p>
                 )}
               </div>
-              <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-indigo-500 transition-colors"></div>
             </Link>
           </div>
         ))}
       </div>
 
-      {/* True Tone & Blue Light Overlays */}
-      {trueTone && <div className="absolute inset-0 bg-amber-400 opacity-40 pointer-events-none" />}
-      {blueLight && <div className="absolute inset-0 bg-orange-500 opacity-40 pointer-events-none" />}
+      {trueTone && <div className="true-tone-overlay" />}
+      {blueLight && <div className="blue-light-overlay" />}
     </div>
-  );
+  )
 }
+

@@ -1,16 +1,18 @@
-"use client"; // Enables `useRouter` in Next.js App Router
-import { useRouter } from "next/navigation";
-import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+"use client"
+import { useRouter } from "next/navigation"
+import { ArrowLeftIcon } from "@heroicons/react/24/outline"
 
 export default function BackButton() {
-  const router = useRouter();
+  const router = useRouter()
 
   return (
     <button
       onClick={() => router.back()}
-      className="fixed top-4 left-4 p-2 bg-white/20 hover:bg-white/20 text-white rounded-full transition-all shadow-md"
+      className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary hover:bg-primary hover:text-primary-foreground transition-colors"
+      aria-label="Go back"
     >
-      <ArrowLeftIcon className="h-8 w-8" />
+      <ArrowLeftIcon className="h-5 w-5" />
     </button>
-  );
+  )
 }
+
