@@ -64,7 +64,7 @@ export default function ConcertPage() {
 
   return (
     <div className="fixed inset-0 flex flex-col bg-black text-white overflow-hidden">
-      <div className="absolute inset-0 h-2/3">
+      <div className="relative w-full h-3/4">
         <Image
           src={imageUrl}
           fill
@@ -81,32 +81,32 @@ export default function ConcertPage() {
           }}
           unoptimized={true}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-100"></div>
       </div>
 
-      <div className="flex flex-col justify-end flex-grow relative z-20 w-full max-w-2xl mx-auto px-6 pb-4">
-        <div className="text-center mb-4">
+      <div className="flex flex-col justify-end flex-grow relative z-20 w-full max-w-2xl mx-auto px-4 pb-2">
+        <div className="text-center mb-2">
           <h1 className="font-extrabold tracking-wide" style={{ fontSize: fontSize * 1.8 }}>
             {concert_name}
           </h1>
-          <p className="text-gray-300 mt-2" style={{ fontSize: fontSize * 1 }}>
+          <p className="text-gray-300 mt-1 mb-2" style={{ fontSize: fontSize * 1 }}>
             {id} | {venue} | {time ? formatTime(time) : ""}
           </p>
         </div>
 
-        <div className="flex flex-col space-y-3">
+        <div className="grid grid-cols-2 gap-x-2">
           {[
-            { href: `/${orchestraId}/${concertId}/repertoire`, label: "Repertoire" },
+            { href: `/${orchestraId}/${concertId}/repertoire`, label: "Program" },
             { href: `/${orchestraId}/${concertId}/biographies`, label: "Biographies" },
-            { href: `/${orchestraId}/meet-orchestra`, label: "Meet the Orchestra" },
-            { href: `/${orchestraId}/acks`, label: "Acknowledgements" },
+            { href: `/${orchestraId}/meet-orchestra`, label: "Orchestra" },
+            { href: `/${orchestraId}/acks`, label: "Attributions" },
           ].map(({ href, label }) => (
             <Link
               key={href}
               href={href}
-              className="group block rounded-xl shadow-lg bg-gray-800 hover:bg-gray-700 hover:scale-[1.03] duration-300"
+              className="group block rounded-lg shadow-md bg-gray-800 hover:bg-gray-700 hover:scale-[1.03] duration-300 mb-3"
             >
-              <div className="p-3 text-center font-medium text-white" style={{ fontSize: fontSize * 1.2 }}>
+              <div className="p-3 text-center font-medium text-white" style={{ fontSize: fontSize * 1.1 }}>
                 {label}
               </div>
             </Link>
