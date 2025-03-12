@@ -74,20 +74,17 @@ export default function Repertoire() {
                           ${enhancedContrast ? "bg-gray-700 border border-white" : "bg-gray-800"}`}
             >
               <div className="p-6">
+                <p className="text-gray-300 mt-1 text-lg" style={{ fontSize: fontSize * 1.4, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
+                  {piece.composer}
+                </p>
                 <h2 className="text-xl font-semibold text-white group-hover:text-indigo-400 transition-colors"
                     style={{ fontSize: fontSize * 1.4, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
-                  {piece.piece_name} <span className="text-gray-500" style={{ fontSize: fontSize * 1.4 }}>{`(${piece.duration})`}</span>
+                  {piece.piece_name}
                 </h2>
-                <p className="text-gray-300 mt-1 text-lg" style={{ fontSize, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
-                  {piece.composer} 
-                  {piece.born && piece.death ? (
-                    <span className="text-gray-500">{` (${piece.born}-${piece.death})`}</span>
-                  ) : ""}
-                </p>
                 {piece.movements && piece.movements.length > 0 && (
-                  <ul className="text-gray-400 text-base mt-1 list-decimal list-inside" style={{ fontSize, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
+                  <ul className="text-gray-400 text-base mt-1 list-none" style={{ fontSize, lineHeight: fontSize > 16 ? 1.6 : 1.4 }}>
                     {piece.movements.map((movement: string, i: number) => (
-                      <li key={`${piece.id}-movement-${i}`}>{movement}</li>
+                      <li key={`${piece.id}-movement-${i}`} className="mb-2 mt-2">{movement}</li>
                     ))}
                   </ul>
                 )}

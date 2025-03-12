@@ -59,8 +59,13 @@ export default function ProgramNote() {
           {piece.composer}
         </h2>
         {piece.born && piece.death && (
-          <p className="text-center text-gray-500 mb-8" style={{ fontSize: fontSize * 1.2 }}>
+          <p className="text-center text-gray-500" style={{ fontSize: fontSize * 1.2 }}>
             ({piece.born} - {piece.death})
+          </p>
+        )}
+        {piece.duration && (
+          <p className="text-center text-gray-500 mb-8" style={{ fontSize: fontSize * 1.2 }}>
+            {piece.duration}
           </p>
         )}
         <p className="text-gray-200" style={{ fontSize }}>{piece.program_notes}</p>
