@@ -23,7 +23,7 @@ export default function ConcertPage() {
       try {
         const { data, error } = await supabase
           .from("concerts")
-          .select("id, orchestra_id, concert_name, time, venue, image, qr_code, intermission_after, intermission_duration, created_at")
+          .select("id, orchestra_id, concert_name, time, venue, image, qr_code, intermission_after, intermission_duration, created_at, showOrchestra")
           .eq("id", concertId)
           .eq("orchestra_id", orchestraId)
           .single();
@@ -90,27 +90,61 @@ export default function ConcertPage() {
             {concert_name}
           </h1>
           <p className="text-gray-300 mt-1 mb-2" style={{ fontSize: fontSize * 1 }}>
-            {id} | {venue} | {time ? formatTime(time) : ""}
+            {venue}
+            <br />
+            {id} | {time ? formatTime(time) : ""}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-2">
-          {[
-            { href: `/${orchestraId}/${concertId}/repertoire`, label: "Program" },
-            { href: `/${orchestraId}/${concertId}/biographies`, label: "Biographies" },
-            { href: `/${orchestraId}/meet-orchestra`, label: "Orchestra" },
-            { href: `/${orchestraId}/acks`, label: "Attributions" },
-          ].map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className="group block rounded-lg shadow-md bg-gray-800 hover:bg-gray-700 hover:scale-[1.03] duration-300 mb-3"
-            >
-              <div className="p-3 text-center font-medium text-white" style={{ fontSize: fontSize * 1.1 }}>
-                {label}
+        <div className="grid grid-cols-1">
+          {concert?.showOrchestra ? (
+            <div className="grid grid-cols-2 gap-x-2">
+              {[
+                { href: `/${orchestraId}/${concertId}/repertoire`, label: "Program" },
+                { href: `/${orchestraId}/${concertId}/biographies`, label: "Biographies" },
+                { href: `/${orchestraId}/meet-orchestra`, label: "Orchestra" },
+                { href: `/${orchestraId}/acks`, label: "Attributions" },
+              ].map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="group block rounded-lg shadow-md bg-gray-800 hover:bg-gray-700 hover:scale-[1.03] duration-300 mb-3"
+                >
+                  <div className="p-3 text-center font-medium text-white" style={{ fontSize: fontSize * 1.1 }}>
+                    {label}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <>
+              <Link
+                href={`/${orchestraId}/${concertId}/repertoire`}
+                className="group block rounded-lg shadow-md bg-gray-800 hover:bg-gray-700 hover:scale-[1.03] duration-300 mb-2"
+              >
+                <div className="p-3 text-center font-medium text-white" style={{ fontSize: fontSize * 1.1 }}>
+                  Works & Program Notes
+                </div>
+              </Link>
+
+              <div className="grid grid-cols-2 gap-x-2">
+                {[
+                  { href: `/${orchestraId}/${concertId}/biographies`, label: "Biographies" },
+                  { href: `/${orchestraId}/acks`, label: "Attributions" },
+                ].map(({ href, label }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="group block rounded-lg shadow-md bg-gray-800 hover:bg-gray-700 hover:scale-[1.03] duration-300 mb-3"
+                  >
+                    <div className="p-3 text-center font-medium text-white" style={{ fontSize: fontSize * 1.1 }}>
+                      {label}
+                    </div>
+                  </Link>
+                ))}
               </div>
-            </Link>
-          ))}
+            </>
+          )}
         </div>
       </div>
 
