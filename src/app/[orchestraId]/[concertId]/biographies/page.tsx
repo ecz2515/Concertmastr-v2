@@ -72,15 +72,24 @@ export default function Biographies() {
                           ${enhancedContrast ? "bg-gray-700 border border-white" : "bg-gray-800 hover:bg-gray-700"}`}
               style={{ minHeight: fontSize * 7 }} 
             >
-              <div className="flex-shrink-0 w-[150px] sm:w-[180px] h-full">
-                <Image
-                  src={imageSrc}
-                  width={180} 
-                  height={180} 
-                  alt={artist.imageAlt || `Photo of ${artist.name}`}
-                  className="object-cover w-full h-full rounded-lg"
-                  priority
-                />
+              <div className="flex-shrink-0 w-[150px] sm:w-[180px] aspect-square">
+                <div className="w-full h-full relative">
+                  <Image
+                    src={imageSrc}
+                    alt={artist.imageAlt || `Photo of ${artist.name}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover rounded-lg"
+                    onError={() => {
+                      const imgElement = document.querySelector(`[alt="${artist.imageAlt || `Photo of ${artist.name}`}"]`) as HTMLImageElement;
+                      if (imgElement) {
+                        imgElement.src = "/assets/images/default_musician.jpg";
+                      }
+                      return true;
+                    }}
+                    unoptimized={true}
+                  />
+                </div>
               </div>
 
               <div className="p-4 flex flex-col justify-center flex-grow min-w-0">

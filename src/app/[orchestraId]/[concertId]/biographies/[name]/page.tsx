@@ -70,6 +70,14 @@ export default function Biography() {
           height={400}
           alt={artist.imageAlt || artist.name}
           className="w-60 h-60 object-cover rounded-lg mx-auto"
+          onError={() => {
+            const imgElement = document.querySelector(`[alt="${artist.imageAlt || artist.name}"]`) as HTMLImageElement;
+            if (imgElement) {
+              imgElement.src = "/assets/images/default_musician.jpg";
+            }
+            return true;
+          }}
+          unoptimized={true}
         />
         <h1 className={`font-bold mt-4 text-center ${enhancedContrast ? 'underline' : ''}`} 
             style={{ fontSize: fontSize * 1.8 }}>
