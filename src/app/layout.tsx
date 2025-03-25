@@ -40,8 +40,10 @@ export default function RootLayout({
   const isConcertPage = /^\/[^/]+\/[^/]+$/.test(pathname);
 
   useEffect(() => {
-    setIsSilencePhonesModalVisible(true);
-  }, []);
+    if (!isHomePage) {
+      setIsSilencePhonesModalVisible(true);
+    }
+  }, [isHomePage]);
 
   return (
     <html lang="en">
@@ -97,10 +99,12 @@ export default function RootLayout({
 
           {children}
 
-          <SilencePhonesModal
-            visible={isSilencePhonesModalVisible}
-            onClose={() => setIsSilencePhonesModalVisible(false)}
-          />
+          {!isHomePage && (
+            <SilencePhonesModal
+              visible={isSilencePhonesModalVisible}
+              onClose={() => setIsSilencePhonesModalVisible(false)}
+            />
+          )}
 
           <SettingsModal
             visible={isSettingsOpen}
