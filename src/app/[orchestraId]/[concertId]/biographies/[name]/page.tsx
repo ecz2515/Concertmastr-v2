@@ -4,17 +4,18 @@ import { notFound } from "next/navigation";
 import { useParams } from "next/navigation"; // Use useParams for client-side routing
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { useAppContext } from "@/lib/AppStateProvider"; // Corrected import path
+import { useAppContext } from "@/lib/AppStateProvider";
+import { useCache } from "@/lib/CacheContext";
 
 export default function Biography() {
   const params = useParams();
-  const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext(); // Destructure context values
+  const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext();
+  const { getConcertFromCache } = useCache();
   const [artist, setArtist] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log("Params received:", params);
+    console.log("Loading biography for:", params);
 
     if (!params?.name || typeof params.name !== 'string') {
       console.error("Error: Name param is missing or invalid!");
@@ -25,23 +26,16 @@ export default function Biography() {
     const decodedName = decodeURIComponent(params.name);
     console.log("Decoded Name:", decodedName);
 
-    const fetchArtist = async () => {
-      const { data, error } = await supabase
-        .from("artists")
-        .select("*")
-        .eq("name", decodedName)
-        .single();
+    // Get artists from cache
+    const cachedArtists = getConcertFromCache(params.orchestraId as string, `${params.concertId as string}-artists`);
+    if (cachedArtists && cachedArtists[decodedName]) {
+      console.log("Found artist in cache:", cachedArtists[decodedName]);
+      setArtist(cachedArtists[decodedName]);
+      return;
+    }
 
-      if (error) {
-        console.error(`Error fetching artist for name "${decodedName}":`, error);
-        setErrorMessage("Artist not found.");
-      } else {
-        setArtist(data);
-      }
-    };
-
-    fetchArtist();
-  }, [params]);
+    setErrorMessage("Artist not found.");
+  }, [params, getConcertFromCache]);
 
   if (errorMessage) {
     return <p className="text-white text-center">{errorMessage}</p>;
@@ -59,7 +53,7 @@ export default function Biography() {
     ? `https://concertmastr-assets.s3.amazonaws.com/${orchestraId}/artists-images/${concertId}.${artist.artist_id}.jpg`
     : "/assets/images/default_musician.jpg";
 
-  console.log("Image source for artist:", artist.name, imageSrc); // Debug log for image path
+  console.log("Image source for artist:", artist.name, imageSrc);
 
   return (
     <div className="relative min-h-screen bg-black text-white pt-20 lg:pt-20 px-6 pb-8">

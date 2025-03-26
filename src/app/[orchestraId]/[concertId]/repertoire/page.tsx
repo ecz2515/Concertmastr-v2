@@ -4,46 +4,40 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
 import { useAppContext } from "@/lib/AppStateProvider"; // Import accessibility settings
+import { useCache } from "@/lib/CacheContext";
 
 export default function Repertoire() {
   const { orchestraId, concertId } = useParams();
   const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext();
+  const { getConcertFromCache, getRepertoireFromCache } = useCache();
   const [program, setProgram] = useState<{ pieces: any[]; intermissionAfter: number | null; intermissionDuration: number | null }>({ pieces: [], intermissionAfter: null, intermissionDuration: null });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log("Fetching repertoire for:", orchestraId, concertId);
+    console.log("Loading repertoire for:", { orchestraId, concertId });
 
-    const fetchProgram = async () => {
-      const { data: programData, error: programError } = await supabase
-        .from("programs")
-        .select("*")
-        .eq("concert_id", concertId) // Match by concert_id
-        .eq("orchestra_id", orchestraId)
-        .order("id", { ascending: true }); // Ensure correct order
+    if (!orchestraId || !concertId) {
+      setErrorMessage("Invalid URL parameters.");
+      return;
+    }
 
-      const { data: concertData, error: concertError } = await supabase
-        .from("concerts")
-        .select("intermission_after, intermission_duration")
-        .eq("id", concertId)
-        .single(); // Fetch intermission details
+    // Get repertoire from cache
+    const cachedRepertoire = getRepertoireFromCache(orchestraId, concertId);
+    const cachedConcert = getConcertFromCache(orchestraId, concertId);
 
-      if (programError || concertError) {
-        console.error("Error fetching program or concert details:", programError || concertError);
-        setErrorMessage("Could not load program.");
-      } else {
-        setProgram({
-          pieces: programData || [],
-          intermissionAfter: concertData?.intermission_after ?? null,
-          intermissionDuration: concertData?.intermission_duration ?? null,
-        });
-      }
-    };
+    if (cachedRepertoire && cachedConcert) {
+      console.log("Found repertoire in cache:", cachedRepertoire);
+      setProgram({
+        pieces: cachedRepertoire,
+        intermissionAfter: cachedConcert.intermission_after ?? null,
+        intermissionDuration: cachedConcert.intermission_duration ?? null,
+      });
+      return;
+    }
 
-    fetchProgram();
-  }, [orchestraId, concertId]);
+    setErrorMessage("Repertoire data not found in cache.");
+  }, [orchestraId, concertId, getRepertoireFromCache, getConcertFromCache]);
 
   if (!program.pieces.length) {
     return <div className="text-center text-white">Loading... {errorMessage && `Error: ${errorMessage}`}</div>;

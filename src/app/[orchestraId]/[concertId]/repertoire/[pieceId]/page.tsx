@@ -2,43 +2,37 @@
 
 import { useEffect, useState } from "react";
 import { notFound, useParams } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
 import { useAppContext } from "@/lib/AppStateProvider"; // Import accessibility settings
+import { useCache } from "@/lib/CacheContext";
 
 export default function ProgramNote() {
   const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext();
-  const { orchestraId, concertId, pieceId } = useParams(); // ✅ Correct param names
-
+  const { orchestraId, concertId, pieceId } = useParams();
+  const { getRepertoireFromCache } = useCache();
   const [piece, setPiece] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log("Fetching program note for:", { orchestraId, concertId, pieceId });
+    console.log("Loading program note for:", { orchestraId, concertId, pieceId });
 
     if (!orchestraId || !concertId || !pieceId) {
       setErrorMessage("Invalid URL parameters.");
       return;
     }
 
-    const fetchPiece = async () => {
-      const { data, error } = await supabase
-        .from("programs")
-        .select("*")
-        .eq("id", pieceId) // ✅ Fetch specific piece
-        .eq("concert_id", concertId)
-        .eq("orchestra_id", orchestraId)
-        .single();
-
-      if (error) {
-        console.error("Error fetching program note:", error);
-        setErrorMessage("Program note not found.");
-      } else {
-        setPiece(data);
+    // Get repertoire from cache
+    const cachedRepertoire = getRepertoireFromCache(orchestraId, concertId);
+    if (cachedRepertoire) {
+      const foundPiece = cachedRepertoire.find((p: any) => p.id === pieceId);
+      if (foundPiece) {
+        console.log("Found piece in cache:", foundPiece);
+        setPiece(foundPiece);
+        return;
       }
-    };
+    }
 
-    fetchPiece();
-  }, [orchestraId, concertId, pieceId]);
+    setErrorMessage("Program note not found.");
+  }, [orchestraId, concertId, pieceId, getRepertoireFromCache]);
 
   if (errorMessage) {
     return <p className="text-white text-center">{errorMessage}</p>;

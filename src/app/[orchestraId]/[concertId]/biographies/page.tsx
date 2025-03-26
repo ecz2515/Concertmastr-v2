@@ -4,41 +4,34 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
 import { useAppContext } from "@/lib/AppStateProvider";
+import { useCache } from "@/lib/CacheContext";
 
 export default function Biographies() {
   const { orchestraId, concertId } = useParams();
   const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext();
+  const { getConcertFromCache } = useCache();
   const [artists, setArtists] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log("Fetching biographies for:", { orchestraId, concertId });
+    console.log("Loading biographies for:", { orchestraId, concertId });
 
-    if (!orchestraId || !concertId) {
+    if (!orchestraId || !concertId || typeof orchestraId !== "string" || typeof concertId !== "string") {
       setErrorMessage("Invalid URL parameters.");
       return;
     }
 
-    const fetchArtists = async () => {
-      const { data, error } = await supabase
-        .from("artists")
-        .select("*")
-        .eq("concert_id", concertId)
-        .eq("orchestra_id", orchestraId)
-        .order("name", { ascending: true });
+    // Get artists from cache
+    const cachedArtists = getConcertFromCache(orchestraId, `${concertId}-artists`);
+    if (cachedArtists) {
+      console.log("Found artists in cache:", cachedArtists);
+      setArtists(Object.values(cachedArtists));
+      return;
+    }
 
-      if (error) {
-        console.error("Error fetching artist biographies:", error);
-        setErrorMessage("Could not load artist biographies.");
-      } else {
-        setArtists(data || []);
-      }
-    };
-
-    fetchArtists();
-  }, [orchestraId, concertId]);
+    setErrorMessage("Artist data not found in cache.");
+  }, [orchestraId, concertId, getConcertFromCache]);
 
   if (errorMessage) {
     return <p className="text-white text-center">{errorMessage}</p>;
@@ -61,12 +54,12 @@ export default function Biographies() {
             ? `https://concertmastr-assets.s3.amazonaws.com/${orchestraId}/artists-images/${concertId}.${artist.artist_id}.jpg`
             : "/assets/images/default_musician.jpg";
 
-          console.log("Image source for artist:", artist.name, imageSrc); // Debug log for image path
+          console.log("Image source for artist:", artist.name, imageSrc);
 
           return (
             <Link 
-              key={artist.id ?? `artist-${index}`}  // Fallback to index if id is missing
-              href={`/${orchestraId}/${concertId}/biographies/${artist.name}`}  
+              key={artist.id ?? `artist-${index}`}
+              href={`/${orchestraId}/${concertId}/biographies/${encodeURIComponent(artist.name)}`}  
               className={`group relative flex items-stretch rounded-xl shadow-lg overflow-hidden transition-all 
                           hover:scale-[1.03] hover:shadow-xl duration-300
                           ${enhancedContrast ? "bg-gray-700 border border-white" : "bg-gray-800 hover:bg-gray-700"}`}

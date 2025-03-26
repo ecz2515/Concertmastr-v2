@@ -6,12 +6,16 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useAppContext } from "@/lib/AppStateProvider";
+import { useCache } from "@/lib/CacheContext";
 
 export default function ConcertPage() {
   const { orchestraId, concertId } = useParams();
   const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext();
+  const { getConcertFromCache, setConcertCache, preloadAllData, concertCache } = useCache();
   const router = useRouter();
   const [concert, setConcert] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!orchestraId || !concertId || typeof orchestraId !== "string" || typeof concertId !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(concertId)) {
@@ -21,29 +25,76 @@ export default function ConcertPage() {
 
     const fetchConcert = async () => {
       try {
-        const { data, error } = await supabase
-          .from("concerts")
-          .select("id, orchestra_id, concert_name, time, venue, image, qr_code, intermission_after, intermission_duration, created_at, showOrchestra")
-          .eq("id", concertId)
-          .eq("orchestra_id", orchestraId)
-          .single();
-
-        if (error) {
-          throw error;
+        setIsLoading(true);
+        setError(null);
+        
+        console.log('Starting fetchConcert:', { orchestraId, concertId });
+        
+        // Check cache first
+        const cachedConcert = getConcertFromCache(orchestraId, concertId);
+        console.log('Initial cache check result:', cachedConcert);
+        
+        if (cachedConcert) {
+          console.log('Found concert in cache:', cachedConcert);
+          setConcert(cachedConcert);
+          setIsLoading(false);
+          return;
         }
 
-        console.log("Concert data from database:", data); // Debug log for concert data
-        setConcert(data);
+        console.log('Concert not in cache, starting preload...');
+        
+        // If not in cache, preload all data for this specific concert
+        await preloadAllData(orchestraId, concertId);
+        
+        // Get the concert from the newly populated cache
+        const concert = getConcertFromCache(orchestraId, concertId);
+        console.log('Cache check after preloading:', concert);
+        
+        if (concert) {
+          console.log('Found concert after preloading:', concert);
+          setConcert(concert);
+        } else {
+          console.error('Concert not found in cache after preloading');
+          throw new Error('Concert not found after preloading');
+        }
       } catch (err: any) {
         console.error("Error fetching concert:", err);
+        setError(err.message || 'Failed to load concert');
         setConcert(null);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchConcert();
-  }, [orchestraId, concertId, router]);
+  }, [orchestraId, concertId, router, getConcertFromCache, preloadAllData]);
 
-  const { id, concert_name, time, venue, image } = concert || {};
+  if (error) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black text-white">
+        <div className="text-center">
+          <h2 className="text-xl mb-4">Error Loading Concert</h2>
+          <p className="text-gray-400">{error}</p>
+          <button 
+            onClick={() => router.push('/')}
+            className="mt-4 px-4 py-2 bg-gray-800 rounded hover:bg-gray-700"
+          >
+            Return Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading || !concert) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+      </div>
+    );
+  }
+
+  const { id, concert_name, time, venue, image } = concert;
 
   // Function to convert time from 24-hour format to 12-hour format
   const formatTime = (timeString: string) => {

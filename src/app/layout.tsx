@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { AppStateProvider } from "@/lib/AppStateProvider";
+import { CacheProvider, useCache } from "@/lib/CacheContext";
 import BackButton from "@/components/BackButton";
 import SettingsModal from "@/components/SettingsModal";
 import SilencePhonesModal from "@/components/SilencePhonesModal";
@@ -24,14 +25,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function LayoutContent({ children }: { children: React.ReactNode }) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isSilencePhonesModalVisible, setIsSilencePhonesModalVisible] =
-    useState(true);
+  const [isSilencePhonesModalVisible, setIsSilencePhonesModalVisible] = useState(true);
   const pathname = usePathname();
 
   const isHomePage = pathname === "/";
@@ -46,82 +42,95 @@ export default function RootLayout({
   }, [isHomePage]);
 
   return (
+    <>
+      {!isHomePage && (
+        <>
+          <div
+            style={{
+              position: "fixed",
+              top: "1.5rem",
+              left: "1rem",
+              zIndex: 1000,
+            }}
+          >
+            {isConcertPage && !isAcksPage && !isOrchestraPage ? (
+              <Image
+                src="/assets/images/CM_logo.png"
+                width={32}
+                height={32}
+                alt="CM Logo"
+                style={{ width: 'auto', height: 'auto' }}
+              />
+            ) : (
+              <BackButton />
+            )}
+          </div>
+
+          <div
+            style={{
+              position: "fixed",
+              top: "1.5rem",
+              right: "1rem",
+              zIndex: 1000,
+            }}
+          >
+            <button
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "white",
+              }}
+              onClick={() => setIsSettingsOpen(true)}
+              aria-label="Open Settings"
+            >
+              <FiSettings size={30} />
+            </button>
+          </div>
+        </>
+      )}
+
+      {children}
+
+      {!isHomePage && (
+        <SilencePhonesModal
+          visible={isSilencePhonesModalVisible}
+          onClose={() => setIsSilencePhonesModalVisible(false)}
+        />
+      )}
+
+      <SettingsModal
+        visible={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
+
+      <style jsx>{`
+        .settingsIcon {
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: white;
+        }
+        .settingsIcon:hover {
+          color: #ccc;
+        }
+      `}</style>
+    </>
+  );
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AppStateProvider>
-          {!isHomePage && (
-            <>
-              <div
-                style={{
-                  position: "fixed",
-                  top: "1.5rem",
-                  left: "1rem",
-                  zIndex: 1000,
-                }}
-              >
-                {isConcertPage && !isAcksPage && !isOrchestraPage ? (
-                  <Image
-                    src="/assets/images/CM_logo.png"
-                    width={32}
-                    height={32}
-                    alt="CM Logo"
-                  />
-                ) : (
-                  <BackButton />
-                )}
-              </div>
-
-              <div
-                style={{
-                  position: "fixed",
-                  top: "1.5rem",
-                  right: "1rem",
-                  zIndex: 1000,
-                }}
-              >
-                <button
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: "white",
-                  }}
-                  onClick={() => setIsSettingsOpen(true)}
-                  aria-label="Open Settings"
-                >
-                  <FiSettings size={30} />
-                </button>
-              </div>
-            </>
-          )}
-
-          {children}
-
-          {!isHomePage && (
-            <SilencePhonesModal
-              visible={isSilencePhonesModalVisible}
-              onClose={() => setIsSilencePhonesModalVisible(false)}
-            />
-          )}
-
-          <SettingsModal
-            visible={isSettingsOpen}
-            onClose={() => setIsSettingsOpen(false)}
-          />
-
-          <style jsx>{`
-            .settingsIcon {
-              background: none;
-              border: none;
-              cursor: pointer;
-              color: white;
-            }
-            .settingsIcon:hover {
-              color: #ccc;
-            }
-          `}</style>
+          <CacheProvider>
+            <LayoutContent>{children}</LayoutContent>
+          </CacheProvider>
         </AppStateProvider>
       </body>
     </html>

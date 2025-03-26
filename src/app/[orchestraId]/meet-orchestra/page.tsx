@@ -36,28 +36,67 @@ export default function MeetOrchestra() {
       const { data, error } = await supabase
         .from("orchestra_musicians")
         .select("*")
-        .eq("orchestra_id", params.orchestraId); // Filter by orchestra_id
+        .eq("orchestra_id", params.orchestraId)
+        .order("id", { ascending: true }); // Order by id in ascending order
 
       if (error) {
         console.error("Error fetching musicians:", error);
         return;
       }
 
-      console.log("Fetched musicians:", data);
-      setMusicians(data as Musician[]);
+      // Sort musicians by instrument and position
+      const sortedMusicians = (data as Musician[]).sort((a, b) => {
+        // Define instrument order
+        const instrumentOrder = [
+          "Violin 1", "First Violin",
+          "Violin 2", "Second Violin",
+          "Viola",
+          "Cello",
+          "Bass",
+          "Flute",
+          "Oboe",
+          "Clarinet",
+          "Bassoon",
+          "Trumpet",
+          "Trombone",
+          "Tuba",
+          "Percussion"
+        ];
+
+        const aIndex = instrumentOrder.indexOf(a.instrument);
+        const bIndex = instrumentOrder.indexOf(b.instrument);
+
+        // If instruments are different, sort by instrument order
+        if (aIndex !== bIndex) {
+          return aIndex - bIndex;
+        }
+
+        // If instruments are the same, sort by position (principals first)
+        if (a.position && !b.position) return -1;
+        if (!a.position && b.position) return 1;
+        return 0;
+      });
+
+      console.log("Sorted musicians:", sortedMusicians);
+      setMusicians(sortedMusicians);
     };
 
     fetchMusicians();
   }, [params.orchestraId]);
 
-  // Group musicians by instrument
+  // Group musicians by instrument while preserving order
   const groupedMusicians = musicians.reduce((acc, musician) => {
-    if (!acc[musician.instrument]) {
-      acc[musician.instrument] = [];
+    const existingGroup = acc.find(group => group.instrument === musician.instrument);
+    if (existingGroup) {
+      existingGroup.musicians.push(musician);
+    } else {
+      acc.push({
+        instrument: musician.instrument,
+        musicians: [musician]
+      });
     }
-    acc[musician.instrument].push(musician);
     return acc;
-  }, {} as Record<string, Musician[]>);
+  }, [] as Array<{ instrument: string; musicians: Musician[] }>);
 
   return (
     <div className="relative min-h-screen bg-black text-white pt-20 lg:pt-20 px-6 pb-8">
@@ -71,8 +110,8 @@ export default function MeetOrchestra() {
       </h1>
 
       <div className="max-w-5xl mx-auto space-y-8">
-        {Object.keys(groupedMusicians).length > 0 ? (
-          Object.entries(groupedMusicians).map(([instrument, musicians]) => (
+        {groupedMusicians.length > 0 ? (
+          groupedMusicians.map(({ instrument, musicians }) => (
             <div key={instrument} className="mb-8">
               <h2 className="font-bold mb-4" style={{ fontSize: fontSize * 1.4 }}>
                 {instrument}
