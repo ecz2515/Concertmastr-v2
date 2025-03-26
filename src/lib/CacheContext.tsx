@@ -25,6 +25,7 @@ export function CacheProvider({ children }: { children: React.ReactNode }) {
   const concertCacheRef = useRef(concertCache);
   const musicianCacheRef = useRef(musicianCache);
   const repertoireCacheRef = useRef(repertoireCache);
+  const preloadInProgressRef = useRef<Set<string>>(new Set());
 
   // Update refs when state changes
   useEffect(() => {
@@ -131,7 +132,64 @@ export function CacheProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const preloadAllData = useCallback(async (orchestraId: string, concertId: string) => {
+    const preloadKey = `${orchestraId}-${concertId}`;
+    
+    // Check if preload is already in progress
+    if (preloadInProgressRef.current.has(preloadKey)) {
+      console.log('Preload already in progress for:', preloadKey);
+      return;
+    }
+
+    // Special case for acknowledgments page
+    if (concertId === 'acks') {
+      try {
+        preloadInProgressRef.current.add(preloadKey);
+        console.log('Preloading acknowledgments data for:', orchestraId);
+        
+        // Fetch musicians for this orchestra
+        const { data: musicians, error: musiciansError } = await supabase
+          .from('orchestra_musicians')
+          .select('*')
+          .eq('orchestra_id', orchestraId);
+
+        if (musiciansError) {
+          console.error('Error fetching musicians:', musiciansError);
+          throw musiciansError;
+        }
+
+        if (musicians) {
+          console.log('Found musicians:', musicians);
+          // Sort musicians by ID before caching
+          const sortedMusicians = [...musicians].sort((a, b) => a.id - b.id);
+          setMusicianCache(orchestraId, sortedMusicians);
+        }
+
+        // Cache an empty object for acknowledgments to indicate it's been loaded
+        setConcertCache(orchestraId, concertId, {});
+        setRepertoireCache(orchestraId, concertId, []);
+
+        console.log('Acknowledgments preload completed successfully');
+      } catch (error) {
+        console.error('Error in acknowledgments preload:', error);
+        throw error;
+      } finally {
+        preloadInProgressRef.current.delete(preloadKey);
+      }
+      return;
+    }
+
+    // Check if data is already in cache
+    const existingConcert = getConcertFromCache(orchestraId, concertId);
+    const existingMusicians = getMusicianFromCache(orchestraId);
+    const existingRepertoire = getRepertoireFromCache(orchestraId, concertId);
+
+    if (existingConcert && existingMusicians && existingRepertoire) {
+      console.log('All data already in cache for:', preloadKey);
+      return;
+    }
+
     try {
+      preloadInProgressRef.current.add(preloadKey);
       console.log('Starting preload for concert:', { orchestraId, concertId });
       console.log('Current concert cache state:', concertCacheRef.current);
       
@@ -172,7 +230,9 @@ export function CacheProvider({ children }: { children: React.ReactNode }) {
 
       if (musicians) {
         console.log('Found musicians:', musicians);
-        setMusicianCache(orchestraId, musicians);
+        // Sort musicians by ID before caching
+        const sortedMusicians = [...musicians].sort((a, b) => a.id - b.id);
+        setMusicianCache(orchestraId, sortedMusicians);
       }
 
       // Fetch repertoire for this concert
@@ -219,8 +279,10 @@ export function CacheProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error in preloadAllData:', error);
       throw error;
+    } finally {
+      preloadInProgressRef.current.delete(preloadKey);
     }
-  }, [setConcertCache, setMusicianCache, setRepertoireCache]);
+  }, [getConcertFromCache, getMusicianFromCache, getRepertoireFromCache, setConcertCache, setMusicianCache, setRepertoireCache]);
 
   return (
     <CacheContext.Provider value={{

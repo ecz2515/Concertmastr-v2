@@ -29,17 +29,32 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSilencePhonesModalVisible, setIsSilencePhonesModalVisible] = useState(true);
   const pathname = usePathname();
+  const { preloadAllData } = useCache();
 
   const isHomePage = pathname === "/";
   const isAcksPage = /\/acks$/.test(pathname);
   const isOrchestraPage = /\/meet-orchestra$/.test(pathname);
-  const isConcertPage = /^\/[^/]+\/[^/]+$/.test(pathname);
+  const isConcertPage = /^\/[^/]+\/[^/]+$/.test(pathname) && !isOrchestraPage;
+
+  // Extract orchestraId and concertId from pathname if they exist
+  const pathParts = pathname.split('/');
+  const orchestraId = pathParts[1];
+  const concertId = pathParts[2];
 
   useEffect(() => {
     if (!isHomePage) {
-      setIsSilencePhonesModalVisible(true);
+      // Only show the modal if it hasn't been shown before for this concert
+      const hasShownModal = localStorage.getItem('silencePhonesModalShown');
+      if (!hasShownModal && isConcertPage) {
+        setIsSilencePhonesModalVisible(true);
+        localStorage.setItem('silencePhonesModalShown', 'true');
+      }
+      // Only preload on actual concert pages (not meet-orchestra or acks)
+      if (isConcertPage && !isAcksPage && orchestraId && concertId) {
+        preloadAllData(orchestraId, concertId).catch(console.error);
+      }
     }
-  }, [isHomePage]);
+  }, [isHomePage, isConcertPage, isAcksPage, orchestraId, concertId, preloadAllData]);
 
   return (
     <>

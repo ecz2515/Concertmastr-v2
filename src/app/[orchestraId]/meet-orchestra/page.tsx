@@ -5,6 +5,7 @@ import Image from "next/image";
 import { createClient } from "@supabase/supabase-js";
 import { useAppContext } from "@/lib/AppStateProvider"; // Import accessibility settings
 import { useParams } from "next/navigation"; // Import useParams for accessing route parameters
+import { useCache } from "@/lib/CacheContext";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,7 +23,8 @@ interface Musician {
 export default function MeetOrchestra() {
   const { enhancedContrast, fontSize, trueTone, blueLight } = useAppContext();
   const [musicians, setMusicians] = useState<Musician[]>([]);
-  const params = useParams(); // Get route parameters
+  const params = useParams();
+  const { getMusicianFromCache, setMusicianCache } = useCache();
 
   useEffect(() => {
     const fetchMusicians = async () => {
@@ -31,60 +33,40 @@ export default function MeetOrchestra() {
         return;
       }
 
+      // Try to get from cache first
+      const cachedMusicians = getMusicianFromCache(params.orchestraId as string);
+      if (cachedMusicians) {
+        console.log("Using cached musicians");
+        setMusicians(cachedMusicians);
+        return;
+      }
+
+      // If not in cache, fetch from Supabase
       console.log("Fetching musicians for orchestraId:", params.orchestraId);
       
       const { data, error } = await supabase
         .from("orchestra_musicians")
         .select("*")
         .eq("orchestra_id", params.orchestraId)
-        .order("id", { ascending: true }); // Order by id in ascending order
+        .order("id", { ascending: true });
 
       if (error) {
         console.error("Error fetching musicians:", error);
         return;
       }
 
-      // Sort musicians by instrument and position
-      const sortedMusicians = (data as Musician[]).sort((a, b) => {
-        // Define instrument order
-        const instrumentOrder = [
-          "Violin 1", "First Violin",
-          "Violin 2", "Second Violin",
-          "Viola",
-          "Cello",
-          "Bass",
-          "Flute",
-          "Oboe",
-          "Clarinet",
-          "Bassoon",
-          "Trumpet",
-          "Trombone",
-          "Tuba",
-          "Percussion"
-        ];
+      // Sort musicians by ID to ensure correct order
+      const sortedMusicians = (data as Musician[]).sort((a, b) => a.id - b.id);
 
-        const aIndex = instrumentOrder.indexOf(a.instrument);
-        const bIndex = instrumentOrder.indexOf(b.instrument);
-
-        // If instruments are different, sort by instrument order
-        if (aIndex !== bIndex) {
-          return aIndex - bIndex;
-        }
-
-        // If instruments are the same, sort by position (principals first)
-        if (a.position && !b.position) return -1;
-        if (!a.position && b.position) return 1;
-        return 0;
-      });
-
-      console.log("Sorted musicians:", sortedMusicians);
+      // Cache the musicians
+      setMusicianCache(params.orchestraId as string, sortedMusicians);
       setMusicians(sortedMusicians);
     };
 
     fetchMusicians();
-  }, [params.orchestraId]);
+  }, [params?.orchestraId, getMusicianFromCache, setMusicianCache]);
 
-  // Group musicians by instrument while preserving order
+  // Group musicians by instrument while preserving ID order
   const groupedMusicians = musicians.reduce((acc, musician) => {
     const existingGroup = acc.find(group => group.instrument === musician.instrument);
     if (existingGroup) {
